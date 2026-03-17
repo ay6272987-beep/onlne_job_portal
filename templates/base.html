@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}JobConnect{% endblock %}</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{--brand:#4f46e5;--bh:#3730a3;--bl:#818cf8;--b10:rgba(79,70,229,.1);--ok:#10b981;--warn:#f59e0b;--bad:#ef4444;--info:#06b6d4;--surf:#fff;--bg:#f5f7ff;--bdr:#e2e8f0;--tx:#0f172a;--mu:#64748b;--nh:64px;}
+    *,*::before,*::after{box-sizing:border-box;}
+    html{scroll-behavior:smooth;}
+    body{font-family:"Plus Jakarta Sans",sans-serif;background:var(--bg);color:var(--tx);margin:0;min-height:100vh;}
+    #nav{position:sticky;top:0;z-index:1000;height:var(--nh);background:rgba(255,255,255,.93);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid var(--bdr);transition:box-shadow .3s;}
+    #nav.scrolled{box-shadow:0 4px 24px rgba(79,70,229,.09);}
+    .nav-wrap{max-width:1280px;margin:0 auto;padding:0 1.5rem;height:100%;display:flex;align-items:center;gap:.75rem;}
+    .n-logo{display:flex;align-items:center;gap:.48rem;text-decoration:none;flex-shrink:0;}
+    .n-logo-ico{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,var(--brand),var(--bl));display:flex;align-items:center;justify-content:center;color:#fff;font-size:.95rem;box-shadow:0 3px 10px rgba(79,70,229,.32);}
+    .n-logo-txt{font-size:1.05rem;font-weight:800;color:var(--tx);letter-spacing:-.35px;}
+    .n-logo-txt span{color:var(--brand);}
+    .n-links{display:flex;align-items:center;gap:.1rem;margin:0 .5rem;}
+    .n-links a{display:flex;align-items:center;gap:.3rem;padding:.42rem .78rem;border-radius:8px;font-size:.858rem;font-weight:600;color:var(--mu);text-decoration:none;white-space:nowrap;transition:color .15s,background .15s;}
+    .n-links a i{font-size:.88rem;}
+    .n-links a:hover{color:var(--brand);background:var(--b10);}
+    .n-links a.on{color:var(--brand);background:var(--b10);}
+    .n-gap{flex:1;}
+    .n-postbtn{display:flex;align-items:center;gap:.32rem;padding:.38rem .9rem;border-radius:8px;font-size:.83rem;font-weight:700;background:var(--b10);color:var(--brand);text-decoration:none;transition:all .15s;white-space:nowrap;flex-shrink:0;}
+    .n-postbtn:hover{background:var(--brand);color:#fff;}
+    .n-login{display:flex;align-items:center;gap:.3rem;padding:.38rem .9rem;border-radius:8px;font-size:.84rem;font-weight:700;border:1.5px solid var(--bdr);color:var(--tx);text-decoration:none;transition:all .15s;white-space:nowrap;background:transparent;}
+    .n-login:hover{border-color:var(--brand);color:var(--brand);}
+    .n-register{display:flex;align-items:center;gap:.3rem;padding:.4rem 1rem;border-radius:8px;font-size:.84rem;font-weight:700;background:var(--brand);color:#fff;text-decoration:none;transition:all .15s;white-space:nowrap;box-shadow:0 2px 8px rgba(79,70,229,.28);}
+    .n-register:hover{background:var(--bh);color:#fff;transform:translateY(-1px);}
+    .n-user{position:relative;flex-shrink:0;}
+    .n-pill{display:flex;align-items:center;gap:.42rem;padding:.28rem .6rem .28rem .28rem;border:1.5px solid var(--bdr);border-radius:50px;background:#fff;cursor:pointer;transition:all .2s;user-select:none;}
+    .n-pill:hover{border-color:var(--brand);box-shadow:0 2px 12px rgba(79,70,229,.1);}
+    .n-av{width:30px;height:30px;border-radius:50%;overflow:hidden;background:linear-gradient(135deg,var(--brand),var(--bl));display:flex;align-items:center;justify-content:center;color:#fff;font-size:.72rem;font-weight:800;flex-shrink:0;}
+    .n-av img{width:100%;height:100%;object-fit:cover;}
+    .n-uname{font-size:.81rem;font-weight:700;color:var(--tx);max-width:78px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+    .n-chev{font-size:.58rem;color:var(--mu);transition:transform .2s;}
+    .n-user.open .n-chev{transform:rotate(180deg);}
+    .n-drop{position:absolute;top:calc(100% + 8px);right:0;width:208px;background:#fff;border:1px solid var(--bdr);border-radius:13px;box-shadow:0 16px 48px rgba(15,23,42,.13);padding:.42rem;z-index:300;opacity:0;pointer-events:none;transform:translateY(-7px);transition:all .18s;}
+    .n-user.open .n-drop{opacity:1;pointer-events:all;transform:none;}
+    .n-dhead{padding:.52rem .68rem .38rem;border-bottom:1px solid var(--bdr);margin-bottom:.3rem;}
+    .n-dhead .dn{font-weight:800;font-size:.87rem;color:var(--tx);}
+    .n-dhead .dr{display:inline-block;font-size:.68rem;font-weight:700;padding:.11rem .42rem;border-radius:20px;background:var(--b10);color:var(--brand);margin-top:.18rem;}
+    .n-drop a{display:flex;align-items:center;gap:.52rem;padding:.48rem .68rem;border-radius:8px;font-size:.83rem;font-weight:600;color:var(--mu);text-decoration:none;transition:all .13s;}
+    .n-drop a:hover{color:var(--brand);background:var(--b10);}
+    .n-drop a.out:hover{color:var(--bad);background:rgba(239,68,68,.07);}
+    .n-dsep{height:1px;background:var(--bdr);margin:.3rem .5rem;}
+    .n-ham{display:none;width:36px;height:36px;border-radius:8px;border:1.5px solid var(--bdr);background:none;cursor:pointer;align-items:center;justify-content:center;font-size:1.05rem;color:var(--tx);flex-shrink:0;transition:all .15s;}
+    .n-ham:hover{border-color:var(--brand);color:var(--brand);}
+    .n-mob{display:none;flex-direction:column;position:fixed;top:var(--nh);left:0;right:0;bottom:0;background:#fff;z-index:999;padding:1.1rem 1rem;overflow-y:auto;border-top:1px solid var(--bdr);gap:.25rem;}
+    .n-mob.open{display:flex;}
+    .mob-card{display:flex;align-items:center;gap:.7rem;background:var(--bg);border-radius:12px;padding:.85rem 1rem;margin-bottom:.6rem;flex-shrink:0;}
+    .mob-av{width:40px;height:40px;border-radius:50%;overflow:hidden;background:linear-gradient(135deg,var(--brand),var(--bl));display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:.88rem;flex-shrink:0;}
+    .mob-av img{width:100%;height:100%;object-fit:cover;}
+    .mob-name{font-weight:800;font-size:.9rem;}
+    .mob-role{font-size:.73rem;color:var(--brand);font-weight:600;}
+    .n-mob a{display:flex;align-items:center;gap:.65rem;padding:.68rem .9rem;border-radius:10px;font-size:.91rem;font-weight:600;color:var(--tx);text-decoration:none;transition:all .14s;}
+    .n-mob a:hover{color:var(--brand);background:var(--b10);}
+    .n-mob .msep{height:1px;background:var(--bdr);margin:.35rem 0;flex-shrink:0;}
+    .n-mob .mout{color:var(--bad)!important;}
+    .n-mob .mout:hover{background:rgba(239,68,68,.07)!important;}
+    @media(max-width:960px){.n-links{display:none;}}
+    @media(max-width:600px){.n-postbtn,.n-login,.n-register{display:none;}.n-ham{display:flex;}}
+    @media(min-width:601px) and (max-width:960px){.n-ham{display:flex;}}
+    #tbox{position:fixed;top:calc(var(--nh)+10px);right:1rem;z-index:9999;width:310px;display:flex;flex-direction:column;gap:.4rem;pointer-events:none;}
+    .jt{display:flex;align-items:flex-start;gap:.65rem;padding:.78rem .9rem;border-radius:11px;font-size:.845rem;font-weight:600;pointer-events:all;box-shadow:0 8px 28px rgba(0,0,0,.1);animation:tslide .25s ease;}
+    .jt .ti{font-size:.98rem;flex-shrink:0;margin-top:.04rem;}
+    .jt .tx{margin-left:auto;background:none;border:none;cursor:pointer;opacity:.4;font-size:1rem;line-height:1;padding:0;}
+    .jt .tx:hover{opacity:1;}
+    .jt.s{background:#f0fdf4;color:#166534;}.jt.d{background:#fef2f2;color:#991b1b;}
+    .jt.w{background:#fffbeb;color:#92400e;}.jt.i{background:#eff6ff;color:#1e40af;}
+    @keyframes tslide{from{opacity:0;transform:translateX(18px);}to{opacity:1;transform:none;}}
+    .jc-foot{background:#0f172a;color:rgba(255,255,255,.52);padding:3rem 0 1.75rem;margin-top:5rem;font-size:.855rem;}
+    .jc-foot a{color:rgba(255,255,255,.42);text-decoration:none;transition:color .14s;}
+    .jc-foot a:hover{color:#fff;}
+    .ft-logo{font-size:1rem;font-weight:800;color:#fff;}.ft-logo span{color:var(--bl);}
+    .ft-h{font-size:.73rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#fff;margin-bottom:.8rem;}
+    .ft-ul{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:.4rem;}
+    .ft-bot{border-top:1px solid rgba(255,255,255,.08);padding-top:1.4rem;margin-top:2rem;display:flex;justify-content:space-between;flex-wrap:wrap;gap:.4rem;font-size:.8rem;}
+  </style>
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+<nav id="nav">
+  <div class="nav-wrap">
+    <a class="n-logo" href="{% url 'home' %}">
+      <div class="n-logo-ico"><i class="bi bi-briefcase-fill"></i></div>
+      <span class="n-logo-txt">Job<span>Connect</span></span>
+    </a>
+    <div class="n-links">
+      <a href="{% url 'home' %}" class="{% if request.resolver_match.url_name == 'home' %}on{% endif %}"><i class="bi bi-house-door"></i>Home</a>
+      <a href="{% url 'job_list' %}" class="{% if request.resolver_match.url_name == 'job_list' %}on{% endif %}"><i class="bi bi-search"></i>Browse Jobs</a>
+      {% if user.is_authenticated %}
+      <a href="{% url 'dashboard' %}" class="{% if request.resolver_match.url_name == 'dashboard' %}on{% endif %}"><i class="bi bi-speedometer2"></i>Dashboard</a>
+      {% endif %}
+    </div>
+    <div class="n-gap"></div>
+    {% if user.is_authenticated %}
+      {% if user.profile.role == 'employer' %}
+      <a href="{% url 'post_job' %}" class="n-postbtn"><i class="bi bi-plus-lg"></i>Post a Job</a>
+      {% endif %}
+      <div class="n-user" id="nU">
+        <div class="n-pill" id="nPill">
+          <div class="n-av">{% if user.profile.avatar %}<img src="{{ user.profile.avatar.url }}" alt="">{% else %}{{ user.first_name|slice:":1"|default:user.username|slice:":1"|upper }}{% endif %}</div>
+          <span class="n-uname">{{ user.first_name|default:user.username }}</span>
+          <i class="bi bi-chevron-down n-chev"></i>
+        </div>
+        <div class="n-drop">
+          <div class="n-dhead">
+            <div class="dn">{{ user.get_full_name|default:user.username }}</div>
+            <span class="dr">{% if user.profile.role == 'employer' %}Employer{% else %}Job Seeker{% endif %}</span>
+          </div>
+          <a href="{% url 'dashboard' %}"><i class="bi bi-speedometer2"></i>Dashboard</a>
+          <a href="{% url 'edit_profile' %}"><i class="bi bi-person-gear"></i>Edit Profile</a>
+          {% if user.profile.role == 'employer' %}<a href="{% url 'post_job' %}"><i class="bi bi-plus-circle"></i>Post a Job</a>{% endif %}
+          <div class="n-dsep"></div>
+          <a href="{% url 'logout' %}" class="out"><i class="bi bi-box-arrow-right"></i>Sign Out</a>
+        </div>
+      </div>
+    {% else %}
+      <a href="{% url 'login' %}" class="n-login"><i class="bi bi-box-arrow-in-right"></i>Login</a>
+      <a href="{% url 'register' %}" class="n-register"><i class="bi bi-person-plus"></i>Get Started</a>
+    {% endif %}
+    <button class="n-ham" id="nHam"><i class="bi bi-list" id="nHI"></i></button>
+  </div>
+</nav>
+<div class="n-mob" id="nMob">
+  {% if user.is_authenticated %}
+  <div class="mob-card">
+    <div class="mob-av">{% if user.profile.avatar %}<img src="{{ user.profile.avatar.url }}" alt="">{% else %}{{ user.first_name|slice:":1"|default:user.username|slice:":1"|upper }}{% endif %}</div>
+    <div><div class="mob-name">{{ user.get_full_name|default:user.username }}</div><div class="mob-role">{% if user.profile.role == 'employer' %}Employer{% else %}Job Seeker{% endif %}</div></div>
+  </div>
+  {% endif %}
+  <a href="{% url 'home' %}"><i class="bi bi-house-door"></i>Home</a>
+  <a href="{% url 'job_list' %}"><i class="bi bi-search"></i>Browse Jobs</a>
+  {% if user.is_authenticated %}
+  <a href="{% url 'dashboard' %}"><i class="bi bi-speedometer2"></i>Dashboard</a>
+  {% if user.profile.role == 'employer' %}<a href="{% url 'post_job' %}"><i class="bi bi-plus-circle"></i>Post a Job</a>{% endif %}
+  <a href="{% url 'edit_profile' %}"><i class="bi bi-person-gear"></i>Edit Profile</a>
+  <div class="msep"></div>
+  <a href="{% url 'logout' %}" class="mout"><i class="bi bi-box-arrow-right"></i>Sign Out</a>
+  {% else %}
+  <div class="msep"></div>
+  <a href="{% url 'login' %}"><i class="bi bi-box-arrow-in-right"></i>Login</a>
+  <a href="{% url 'register' %}" style="color:var(--brand);"><i class="bi bi-person-plus"></i>Get Started</a>
+  {% endif %}
+</div>
+<div id="tbox">
+  {% for m in messages %}
+  {% if m.tags == 'success' %}<div class="jt s"><span class="ti"><i class="bi bi-check-circle-fill"></i></span>{{ m }}<button class="tx" onclick="this.parentElement.remove()">&#215;</button></div>
+  {% elif m.tags == 'danger' or m.tags == 'error' %}<div class="jt d"><span class="ti"><i class="bi bi-x-circle-fill"></i></span>{{ m }}<button class="tx" onclick="this.parentElement.remove()">&#215;</button></div>
+  {% elif m.tags == 'warning' %}<div class="jt w"><span class="ti"><i class="bi bi-exclamation-triangle-fill"></i></span>{{ m }}<button class="tx" onclick="this.parentElement.remove()">&#215;</button></div>
+  {% else %}<div class="jt i"><span class="ti"><i class="bi bi-info-circle-fill"></i></span>{{ m }}<button class="tx" onclick="this.parentElement.remove()">&#215;</button></div>
+  {% endif %}
+  {% endfor %}
+</div>
+{% block content %}{% endblock %}
+<footer class="jc-foot">
+  <div class="container" style="max-width:1280px;">
+    <div class="row g-4 mb-3">
+      <div class="col-12 col-sm-6 col-lg-4">
+        <div class="d-flex align-items-center gap-2 mb-3">
+          <div style="width:30px;height:30px;border-radius:7px;background:linear-gradient(135deg,#4f46e5,#818cf8);display:flex;align-items:center;justify-content:center;color:#fff;font-size:.82rem;"><i class="bi bi-briefcase-fill"></i></div>
+          <span class="ft-logo">Job<span>Connect</span></span>
+        </div>
+        <p style="font-size:.845rem;line-height:1.8;max-width:250px;">Connecting talented professionals with top companies across India.</p>
+      </div>
+      <div class="col-6 col-sm-3 col-lg-2 offset-lg-2">
+        <div class="ft-h">Seekers</div>
+        <ul class="ft-ul"><li><a href="{% url 'job_list' %}">Browse Jobs</a></li><li><a href="{% url 'register' %}">Create Account</a></li><li><a href="{% url 'dashboard' %}">Dashboard</a></li></ul>
+      </div>
+      <div class="col-6 col-sm-3 col-lg-2">
+        <div class="ft-h">Employers</div>
+        <ul class="ft-ul"><li><a href="{% url 'post_job' %}">Post a Job</a></li><li><a href="{% url 'register' %}">Sign Up</a></li><li><a href="{% url 'dashboard' %}">Manage Jobs</a></li></ul>
+      </div>
+      <div class="col-6 col-sm-3 col-lg-2">
+        <div class="ft-h">Browse</div>
+        <ul class="ft-ul"><li><a href="{% url 'job_list' %}?job_type=full-time">Full Time</a></li><li><a href="{% url 'job_list' %}?job_type=remote">Remote</a></li><li><a href="{% url 'job_list' %}?job_type=internship">Internship</a></li></ul>
+      </div>
+    </div>
+    <div class="ft-bot"><span>© 2026 JobConnect India. All rights reserved.</span><span>Made with <i class="bi bi-heart-fill" style="color:#ef4444;"></i> in India</span></div>
+  </div>
+</footer>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+window.addEventListener("scroll",()=>document.getElementById("nav").classList.toggle("scrolled",scrollY>40),{passive:true});
+const nU=document.getElementById("nU"),nP=document.getElementById("nPill");
+if(nU&&nP){nP.addEventListener("click",e=>{e.stopPropagation();nU.classList.toggle("open");});document.addEventListener("click",()=>nU.classList.remove("open"));}
+const ham=document.getElementById("nHam"),mob=document.getElementById("nMob"),hi=document.getElementById("nHI");
+if(ham){ham.addEventListener("click",()=>{const o=mob.classList.toggle("open");hi.className=o?"bi bi-x-lg":"bi bi-list";});mob.querySelectorAll("a").forEach(a=>a.addEventListener("click",()=>{mob.classList.remove("open");hi.className="bi bi-list";}));}
+setTimeout(()=>document.querySelectorAll(".jt").forEach(t=>{t.style.transition="all .4s";t.style.opacity="0";t.style.transform="translateX(18px)";setTimeout(()=>t.remove(),400);}),5000);
+</script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

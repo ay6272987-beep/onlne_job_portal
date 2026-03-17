@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% block title %}Apply – {{ job.title }} | JobConnect{% endblock %}
+{% block extra_head %}
+<style>
+  .ap-wrap{max-width:680px;margin:2.5rem auto;padding:0 1rem;}
+  .ap-card{background:#fff;border:1px solid #e2e8f0;border-radius:16px;overflow:hidden;}
+  .ap-head{padding:1.5rem 1.75rem;border-bottom:1px solid #e2e8f0;background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;}
+  .ap-head h1{font-size:1.15rem;font-weight:800;margin:0;}
+  .ap-head p{font-size:.855rem;opacity:.8;margin:.3rem 0 0;}
+  .ap-body{padding:1.75rem;}
+  .fg{display:flex;flex-direction:column;gap:.38rem;margin-bottom:1.1rem;}
+  .fg label{font-size:.8rem;font-weight:700;color:#0f172a;}
+  .fg textarea,.fg input{padding:.65rem .9rem;border:1.5px solid #e2e8f0;border-radius:9px;font-size:.875rem;font-family:inherit;color:#0f172a;background:#fff;outline:none;transition:border-color .15s;width:100%;}
+  .fg textarea:focus,.fg input:focus{border-color:#4f46e5;}
+  .fg textarea{resize:vertical;min-height:180px;}
+  .fg .hint{font-size:.775rem;color:#94a3b8;margin-top:.25rem;}
+  .btns{display:flex;gap:.75rem;justify-content:flex-end;margin-top:1.5rem;}
+  .btn-sub{display:inline-flex;align-items:center;gap:.4rem;padding:.6rem 1.5rem;background:#4f46e5;color:#fff;border:none;border-radius:9px;font-size:.9rem;font-weight:700;cursor:pointer;transition:all .15s;}
+  .btn-sub:hover{background:#3730a3;}
+  .btn-back{display:inline-flex;align-items:center;gap:.4rem;padding:.6rem 1.1rem;border:1.5px solid #e2e8f0;color:#64748b;border-radius:9px;font-size:.9rem;font-weight:700;text-decoration:none;transition:all .15s;}
+  .btn-back:hover{border-color:#4f46e5;color:#4f46e5;}
+  .job-info{background:#f5f7ff;border-radius:10px;padding:.9rem 1.1rem;margin-bottom:1.5rem;display:flex;gap:.75rem;align-items:center;}
+  .job-info i{font-size:1.3rem;color:#4f46e5;}
+</style>
+{% endblock %}
+{% block content %}
+<div class="ap-wrap">
+  <div class="ap-card">
+    <div class="ap-head">
+      <h1>Apply for this Position</h1>
+      <p><i class="bi bi-briefcase me-1"></i>{{ job.title }} at {{ job.company }}</p>
+    </div>
+    <div class="ap-body">
+      <div class="job-info">
+        <i class="bi bi-geo-alt-fill"></i>
+        <div>
+          <strong>{{ job.company }}</strong> &nbsp;·&nbsp; {{ job.location }} &nbsp;·&nbsp;
+          <span style="background:rgba(79,70,229,.1);color:#4f46e5;padding:.15rem .5rem;border-radius:20px;font-size:.78rem;font-weight:700;">{{ job.get_job_type_display }}</span>
+        </div>
+      </div>
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="fg">
+          <label>Cover Letter <span style="color:#ef4444;">*</span></label>
+          <textarea name="cover_letter" placeholder="Introduce yourself and explain why you're a great fit for this role...">{{ form.cover_letter.value|default:'' }}</textarea>
+          <div class="hint">Minimum 100 characters recommended. Make it personal and specific to this role.</div>
+        </div>
+        <div class="fg">
+          <label>Resume <span style="color:#94a3b8;font-weight:400;">(optional — PDF preferred)</span></label>
+          {% if request.user.profile.resume %}
+          <div style="background:#f0fdf4;border:1.5px solid #bbf7d0;border-radius:9px;padding:.65rem .9rem;margin-bottom:.5rem;display:flex;align-items:center;gap:.6rem;font-size:.845rem;font-weight:600;color:#065f46;">
+            <i class="bi bi-file-earmark-check-fill"></i> Profile resume will be used by default
+            <a href="{{ request.user.profile.resume.url }}" target="_blank" style="margin-left:auto;color:#059669;font-size:.78rem;">View</a>
+          </div>
+          {% endif %}
+          <input type="file" name="resume" accept=".pdf,.doc,.docx">
+          <div class="hint">Upload to override your profile resume for this application.</div>
+        </div>
+        <div class="btns">
+          <a href="{% url 'job_detail' job.pk %}" class="btn-back"><i class="bi bi-arrow-left"></i>Cancel</a>
+          <button type="submit" class="btn-sub"><i class="bi bi-send-fill"></i>Submit Application</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

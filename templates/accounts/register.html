@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+{% block title %}Create Account – JobConnect{% endblock %}
+{% block extra_head %}
+<style>
+  .auth-wrap{min-height:calc(100vh - 64px);display:flex;align-items:center;justify-content:center;padding:2rem 1rem;}
+  .auth-card{width:100%;max-width:520px;background:#fff;border-radius:18px;border:1px solid #e2e8f0;padding:2.25rem;}
+  .auth-logo{text-align:center;margin-bottom:1.75rem;}
+  .auth-logo .ico{width:48px;height:48px;border-radius:13px;background:linear-gradient(135deg,#4f46e5,#818cf8);display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.25rem;margin:0 auto .75rem;}
+  .auth-logo h1{font-size:1.35rem;font-weight:800;margin:0;color:#0f172a;}
+  .auth-logo p{font-size:.875rem;color:#64748b;margin:.3rem 0 0;}
+  .role-btns{display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin-bottom:1.25rem;}
+  .role-btn{padding:.65rem;border-radius:10px;border:2px solid #e2e8f0;background:#fff;cursor:pointer;text-align:center;transition:all .15s;font-weight:700;font-size:.855rem;color:#64748b;}
+  .role-btn i{display:block;font-size:1.3rem;margin-bottom:.25rem;}
+  .role-btn.active{border-color:#4f46e5;background:rgba(79,70,229,.06);color:#4f46e5;}
+  .fg{display:flex;flex-direction:column;gap:.35rem;margin-bottom:.875rem;}
+  .fg label{font-size:.8rem;font-weight:700;color:#0f172a;}
+  .fg input,.fg select{padding:.6rem .9rem;border:1.5px solid #e2e8f0;border-radius:9px;font-size:.875rem;font-family:inherit;color:#0f172a;background:#fff;outline:none;transition:border-color .15s;width:100%;}
+  .fg input:focus,.fg select:focus{border-color:#4f46e5;}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;}
+  .err{font-size:.775rem;color:#ef4444;margin-top:.25rem;}
+  .btn-auth{width:100%;padding:.7rem;background:#4f46e5;color:#fff;border:none;border-radius:10px;font-size:.925rem;font-weight:800;cursor:pointer;transition:all .15s;margin-top:.5rem;}
+  .btn-auth:hover{background:#3730a3;transform:translateY(-1px);}
+  .auth-footer{text-align:center;margin-top:1.25rem;font-size:.855rem;color:#64748b;}
+  .auth-footer a{color:#4f46e5;font-weight:700;text-decoration:none;}
+  @media(max-width:500px){.grid2{grid-template-columns:1fr;}}
+</style>
+{% endblock %}
+{% block content %}
+<div class="auth-wrap">
+  <div class="auth-card">
+    <div class="auth-logo">
+      <div class="ico"><i class="bi bi-briefcase-fill"></i></div>
+      <h1>Create your account</h1>
+      <p>Join thousands of professionals on JobConnect</p>
+    </div>
+
+    <form method="post">
+      {% csrf_token %}
+      <input type="hidden" name="role" id="roleInput" value="jobseeker">
+
+      <div class="role-btns">
+        <button type="button" class="role-btn active" id="btnSeeker" onclick="setRole('jobseeker',this)">
+          <i class="bi bi-person-badge"></i>Job Seeker
+        </button>
+        <button type="button" class="role-btn" id="btnEmployer" onclick="setRole('employer',this)">
+          <i class="bi bi-building"></i>Employer
+        </button>
+      </div>
+
+      <div class="grid2">
+        <div class="fg"><label>First Name</label>{{ form.first_name }}{% if form.first_name.errors %}<div class="err">{{ form.first_name.errors.0 }}</div>{% endif %}</div>
+        <div class="fg"><label>Last Name</label>{{ form.last_name }}</div>
+      </div>
+      <div class="fg"><label>Username</label>{{ form.username }}{% if form.username.errors %}<div class="err">{{ form.username.errors.0 }}</div>{% endif %}</div>
+      <div class="fg"><label>Email Address</label>{{ form.email }}{% if form.email.errors %}<div class="err">{{ form.email.errors.0 }}</div>{% endif %}</div>
+      <div class="grid2">
+        <div class="fg"><label>Password</label>{{ form.password1 }}{% if form.password1.errors %}<div class="err">{{ form.password1.errors.0 }}</div>{% endif %}</div>
+        <div class="fg"><label>Confirm Password</label>{{ form.password2 }}{% if form.password2.errors %}<div class="err">{{ form.password2.errors.0 }}</div>{% endif %}</div>
+      </div>
+      <div class="fg"><label>Phone Number <span style="color:#94a3b8;font-weight:400;">(optional)</span></label>{{ form.phone }}</div>
+      <div class="fg employer-field" style="display:none;"><label>Company Name</label>{{ form.company_name }}</div>
+
+      <button type="submit" class="btn-auth"><i class="bi bi-person-check me-2"></i>Create Account</button>
+    </form>
+
+    <div class="auth-footer">Already have an account? <a href="{% url 'login' %}">Sign in</a></div>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+document.querySelectorAll('.fg input, .fg select').forEach(el => {
+  if (!el.style.width) el.classList.add('form-control-plain');
+});
+function setRole(role, btn) {
+  document.getElementById('roleInput').value = role;
+  document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const ef = document.querySelector('.employer-field');
+  if (ef) ef.style.display = role === 'employer' ? 'block' : 'none';
+  // sync hidden select if exists
+  const sel = document.querySelector('select[name="role"]');
+  if (sel) sel.value = role;
+}
+// Hide the original role select (we use custom buttons)
+const roleSelect = document.querySelector('select[name="role"]');
+if (roleSelect) roleSelect.closest('.fg') && (roleSelect.closest('.fg').style.display = 'none');
+</script>
+{% endblock %}

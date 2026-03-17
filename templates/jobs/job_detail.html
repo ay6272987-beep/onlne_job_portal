@@ -1,0 +1,187 @@
+{% extends 'base.html' %}
+{% block title %}{{ job.title }} at {{ job.company }} — JobConnect{% endblock %}
+{% block content %}
+<style>
+  .detail-page { background: #f8fafc; padding: 2.5rem 0; }
+  .detail-card { background: white; border-radius: 20px; border: 1px solid #f1f5f9; overflow: hidden; }
+  .detail-header { background: linear-gradient(135deg, #0f172a, #1e1b4b); padding: 2.5rem 2rem; }
+  .detail-body { padding: 2rem; }
+  .skill-chip { display: inline-flex; align-items: center; background: #ede9fe; color: #5b21b6; font-size: 0.78rem; font-weight: 600; padding: 0.3rem 0.75rem; border-radius: 20px; margin: 3px; }
+  .info-row { display: flex; align-items: center; gap: 10px; padding: 0.75rem 0; border-bottom: 1px solid #f8fafc; font-size: 0.88rem; }
+  .info-row i { width: 32px; height: 32px; background: #f8fafc; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #4f46e5; font-size: 0.9rem; flex-shrink: 0; }
+  .info-label { color: #94a3b8; font-weight: 500; min-width: 100px; }
+  .info-value { color: #0f172a; font-weight: 600; }
+  .apply-sidebar { background: white; border-radius: 20px; border: 1px solid #f1f5f9; padding: 1.5rem; position: sticky; top: 80px; }
+  .related-card { background: white; border-radius: 14px; border: 1px solid #f1f5f9; padding: 1rem; transition: all 0.2s; text-decoration: none; display: block; }
+  .related-card:hover { border-color: rgba(79,70,229,0.3); box-shadow: 0 4px 15px rgba(79,70,229,0.1); transform: translateY(-2px); }
+</style>
+
+<div class="detail-page">
+  <div class="container">
+    <a href="{% url 'job_list' %}" style="color:#64748b;text-decoration:none;font-size:0.88rem;display:inline-flex;align-items:center;gap:5px;margin-bottom:1.25rem;">
+      <i class="bi bi-arrow-left"></i>Back to Jobs
+    </a>
+
+    <div class="row g-4">
+      <!-- LEFT -->
+      <div class="col-lg-8">
+        <div class="detail-card">
+          <div class="detail-header">
+            <div class="d-flex align-items-start gap-3 mb-3">
+              <div style="width:60px;height:60px;background:rgba(255,255,255,0.15);border-radius:14px;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;">
+                {% if job.company_logo %}
+                  <img src="{{ job.company_logo.url }}" style="width:100%;height:100%;object-fit:cover;">
+                {% else %}
+                  <i class="bi bi-building" style="color:white;font-size:1.5rem;"></i>
+                {% endif %}
+              </div>
+              <div style="flex:1;">
+                <h2 style="color:white;font-weight:800;margin-bottom:4px;">{{ job.title }}</h2>
+                <div style="color:rgba(255,255,255,0.7);font-size:0.9rem;font-weight:500;">{{ job.company }}</div>
+              </div>
+              <div style="color:rgba(255,255,255,0.5);font-size:0.78rem;text-align:right;">
+                <div><i class="bi bi-eye me-1"></i>{{ job.views_count }} views</div>
+                <div style="margin-top:3px;"><i class="bi bi-people me-1"></i>{{ job.applications.count }} applied</div>
+              </div>
+            </div>
+            <div class="d-flex gap-2 flex-wrap">
+              <span style="background:rgba(255,255,255,0.15);color:rgba(255,255,255,0.9);font-size:0.78rem;font-weight:600;padding:0.3rem 0.8rem;border-radius:20px;"><i class="bi bi-geo-alt me-1"></i>{{ job.location }}</span>
+              <span style="background:rgba(255,255,255,0.15);color:rgba(255,255,255,0.9);font-size:0.78rem;font-weight:600;padding:0.3rem 0.8rem;border-radius:20px;"><i class="bi bi-briefcase me-1"></i>{{ job.get_job_type_display }}</span>
+              {% if job.salary %}<span style="background:rgba(16,185,129,0.2);color:#6ee7b7;font-size:0.78rem;font-weight:600;padding:0.3rem 0.8rem;border-radius:20px;"><i class="bi bi-currency-rupee"></i>{{ job.salary }}</span>{% endif %}
+              <span style="background:rgba(255,255,255,0.15);color:rgba(255,255,255,0.9);font-size:0.78rem;font-weight:600;padding:0.3rem 0.8rem;border-radius:20px;"><i class="bi bi-bar-chart me-1"></i>{{ job.get_experience_display }}</span>
+            </div>
+          </div>
+
+          <div class="detail-body">
+            <!-- Job Info Grid -->
+            <div class="mb-4">
+              <div class="info-row">
+                <i class="bi bi-calendar3"></i>
+                <span class="info-label">Posted</span>
+                <span class="info-value">{{ job.created_at|date:"d F Y" }}</span>
+              </div>
+              {% if job.deadline %}
+              <div class="info-row">
+                <i class="bi bi-clock-history"></i>
+                <span class="info-label">Deadline</span>
+                <span class="info-value" style="color:#ef4444;">{{ job.deadline|date:"d F Y" }}</span>
+              </div>
+              {% endif %}
+              <div class="info-row">
+                <i class="bi bi-building"></i>
+                <span class="info-label">Company</span>
+                <span class="info-value">{{ job.company }}</span>
+              </div>
+              <div class="info-row">
+                <i class="bi bi-geo-alt-fill"></i>
+                <span class="info-label">Location</span>
+                <span class="info-value">{{ job.location }}</span>
+              </div>
+            </div>
+
+            <!-- Skills Required -->
+            {% if job.get_skills_list %}
+            <div class="mb-4">
+              <h6 style="font-weight:700;color:#0f172a;margin-bottom:0.75rem;"><i class="bi bi-code-slash me-2 text-primary"></i>Skills Required</h6>
+              <div>
+                {% for skill in job.get_skills_list %}
+                <span class="skill-chip">{{ skill }}</span>
+                {% endfor %}
+              </div>
+            </div>
+            {% endif %}
+
+            <!-- Description -->
+            <div class="mb-4">
+              <h6 style="font-weight:700;color:#0f172a;margin-bottom:0.75rem;"><i class="bi bi-file-text me-2 text-primary"></i>Job Description</h6>
+              <div style="color:#475569;line-height:1.8;font-size:0.92rem;white-space:pre-line;">{{ job.description }}</div>
+            </div>
+
+            <!-- Requirements -->
+            <div class="mb-4">
+              <h6 style="font-weight:700;color:#0f172a;margin-bottom:0.75rem;"><i class="bi bi-list-check me-2 text-primary"></i>Requirements</h6>
+              <div style="color:#475569;line-height:1.8;font-size:0.92rem;white-space:pre-line;">{{ job.requirements }}</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Related Jobs -->
+        {% if related_jobs %}
+        <div class="mt-4">
+          <h6 style="font-weight:700;color:#0f172a;margin-bottom:1rem;">Similar Jobs</h6>
+          <div class="row g-3">
+            {% for rjob in related_jobs %}
+            <div class="col-md-4">
+              <a href="{% url 'job_detail' rjob.pk %}" class="related-card">
+                <div style="font-weight:700;font-size:0.88rem;color:#0f172a;margin-bottom:3px;">{{ rjob.title }}</div>
+                <div style="font-size:0.78rem;color:#64748b;">{{ rjob.company }} · {{ rjob.location }}</div>
+                {% if rjob.salary %}<div style="font-size:0.78rem;color:#10b981;font-weight:600;margin-top:4px;"><i class="bi bi-currency-rupee"></i>{{ rjob.salary }}</div>{% endif %}
+              </a>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+      </div>
+
+      <!-- RIGHT SIDEBAR -->
+      <div class="col-lg-4">
+        <div class="apply-sidebar">
+          <h6 style="font-weight:700;color:#0f172a;margin-bottom:1.25rem;">Ready to Apply?</h6>
+
+          {% if user.is_authenticated %}
+            {% if has_applied %}
+              <div style="background:#d1fae5;border-radius:12px;padding:1rem;text-align:center;margin-bottom:1rem;">
+                <i class="bi bi-check-circle-fill" style="color:#10b981;font-size:1.5rem;display:block;margin-bottom:0.5rem;"></i>
+                <div style="font-weight:700;color:#065f46;font-size:0.9rem;">Application Submitted!</div>
+                <div style="font-size:0.78rem;color:#059669;margin-top:2px;">You applied for this job</div>
+              </div>
+            {% else %}
+              <a href="{% url 'apply_job' job.pk %}" class="btn btn-primary w-100 mb-2" style="border-radius:12px;padding:0.85rem;font-weight:700;font-size:0.95rem;">
+                <i class="bi bi-send-fill me-2"></i>Apply Now
+              </a>
+            {% endif %}
+
+            <a href="{% url 'save_job' job.pk %}" class="btn w-100 mb-3" style="border-radius:12px;padding:0.75rem;font-weight:600;font-size:0.88rem;{% if is_saved %}background:#ede9fe;color:#4f46e5;border:1.5px solid #c4b5fd;{% else %}background:#f8fafc;color:#64748b;border:1.5px solid #e2e8f0;{% endif %}">
+              <i class="bi bi-bookmark{% if is_saved %}-fill{% endif %} me-2"></i>
+              {% if is_saved %}Saved{% else %}Save Job{% endif %}
+            </a>
+
+          {% else %}
+            <a href="{% url 'login' %}?next={{ request.path }}" class="btn btn-primary w-100 mb-2" style="border-radius:12px;padding:0.85rem;font-weight:700;">
+              <i class="bi bi-box-arrow-in-right me-2"></i>Login to Apply
+            </a>
+            <a href="{% url 'register' %}" class="btn w-100" style="border-radius:12px;padding:0.75rem;font-weight:600;background:#f8fafc;color:#64748b;border:1.5px solid #e2e8f0;font-size:0.88rem;">
+              Create Account
+            </a>
+          {% endif %}
+
+          <hr style="border-color:#f1f5f9;margin:1rem 0;">
+
+          <!-- Quick Info -->
+          <div style="font-size:0.82rem;">
+            <div style="display:flex;justify-content:space-between;padding:0.5rem 0;border-bottom:1px solid #f8fafc;">
+              <span style="color:#94a3b8;font-weight:500;">Job Type</span>
+              <span style="font-weight:600;color:#0f172a;">{{ job.get_job_type_display }}</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;padding:0.5rem 0;border-bottom:1px solid #f8fafc;">
+              <span style="color:#94a3b8;font-weight:500;">Experience</span>
+              <span style="font-weight:600;color:#0f172a;">{{ job.get_experience_display }}</span>
+            </div>
+            {% if job.salary %}
+            <div style="display:flex;justify-content:space-between;padding:0.5rem 0;border-bottom:1px solid #f8fafc;">
+              <span style="color:#94a3b8;font-weight:500;">Salary</span>
+              <span style="font-weight:600;color:#10b981;">{{ job.salary }}</span>
+            </div>
+            {% endif %}
+            <div style="display:flex;justify-content:space-between;padding:0.5rem 0;">
+              <span style="color:#94a3b8;font-weight:500;">Applicants</span>
+              <span style="font-weight:600;color:#0f172a;">{{ job.applications.count }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

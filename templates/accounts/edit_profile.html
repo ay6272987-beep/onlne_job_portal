@@ -1,0 +1,136 @@
+{% extends 'base.html' %}
+{% block title %}Edit Profile – JobConnect{% endblock %}
+{% block extra_head %}
+<style>
+  .ep-wrap{max-width:780px;margin:2.5rem auto;padding:0 1rem;}
+  .ep-card{background:#fff;border:1px solid #e2e8f0;border-radius:16px;overflow:hidden;}
+  .ep-head{padding:1.25rem 1.75rem;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;justify-content:space-between;}
+  .ep-head h1{font-size:1.15rem;font-weight:800;margin:0;color:#0f172a;}
+  .ep-body{padding:1.75rem;}
+  .av-row{display:flex;align-items:center;gap:1.25rem;background:#f5f7ff;border-radius:12px;padding:1.1rem 1.25rem;margin-bottom:1.5rem;}
+  .av-circle{width:68px;height:68px;border-radius:50%;background:linear-gradient(135deg,#4f46e5,#818cf8);display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.5rem;font-weight:800;overflow:hidden;flex-shrink:0;border:3px solid #e2e8f0;}
+  .av-circle img{width:100%;height:100%;object-fit:cover;}
+  .av-info h4{font-size:.9rem;font-weight:700;margin:0 0 .2rem;}
+  .av-info p{font-size:.78rem;color:#64748b;margin:0 0 .5rem;}
+  .fg{display:flex;flex-direction:column;gap:.38rem;margin-bottom:1rem;}
+  .fg label{font-size:.8rem;font-weight:700;color:#0f172a;}
+  .fg input,.fg textarea,.fg select{padding:.6rem .9rem;border:1.5px solid #e2e8f0;border-radius:9px;font-size:.875rem;font-family:inherit;color:#0f172a;background:#fff;transition:border-color .15s;outline:none;width:100%;}
+  .fg input:focus,.fg textarea:focus,.fg select:focus{border-color:#4f46e5;}
+  .fg textarea{resize:vertical;min-height:90px;}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+  .full{grid-column:1/-1;}
+  .sec-title{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#64748b;margin:1.25rem 0 .75rem;padding-top:.75rem;border-top:1px solid #f1f5f9;}
+  .btn-save{display:inline-flex;align-items:center;gap:.4rem;padding:.52rem 1.4rem;background:#4f46e5;color:#fff;border:none;border-radius:9px;font-size:.875rem;font-weight:700;cursor:pointer;transition:all .15s;}
+  .btn-save:hover{background:#3730a3;}
+  .btn-cancel{display:inline-flex;align-items:center;gap:.4rem;padding:.52rem 1.1rem;border:1.5px solid #e2e8f0;color:#64748b;border-radius:9px;font-size:.875rem;font-weight:700;text-decoration:none;transition:all .15s;}
+  .btn-cancel:hover{border-color:#4f46e5;color:#4f46e5;}
+  @media(max-width:600px){.grid2{grid-template-columns:1fr;}}
+</style>
+{% endblock %}
+{% block content %}
+<div class="ep-wrap">
+  <div class="ep-card">
+    <div class="ep-head">
+      <h1><i class="bi bi-person-gear me-2" style="color:#4f46e5;"></i>Edit Profile</h1>
+      <a href="{% url 'dashboard' %}" class="btn-cancel"><i class="bi bi-arrow-left"></i>Back</a>
+    </div>
+    <div class="ep-body">
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <!-- Avatar -->
+        <div class="av-row">
+          <div class="av-circle" id="avCircle">
+            {% if profile.avatar %}
+              <img src="{{ profile.avatar.url }}" id="avPreview" alt="">
+            {% else %}
+              <span id="avInitial">{{ user.first_name|slice:":1"|default:user.username|slice:":1"|upper }}</span>
+              <img id="avPreview" style="display:none;" alt="">
+            {% endif %}
+          </div>
+          <div class="av-info">
+            <h4>Profile Photo</h4>
+            <p>JPG, PNG or GIF — max 5 MB</p>
+            <label for="avInput" style="display:inline-flex;align-items:center;gap:.35rem;padding:.38rem .85rem;background:#4f46e5;color:#fff;border-radius:8px;font-size:.8rem;font-weight:700;cursor:pointer;">
+              <i class="bi bi-upload"></i>Upload Photo
+            </label>
+          </div>
+          <input type="file" id="avInput" name="avatar" accept="image/*" style="display:none;">
+        </div>
+
+        <!-- Personal Info -->
+        <div class="sec-title">Personal Information</div>
+        <div class="grid2">
+          <div class="fg"><label>First Name</label><input type="text" name="first_name" value="{{ user.first_name }}" placeholder="First name"></div>
+          <div class="fg"><label>Last Name</label><input type="text" name="last_name" value="{{ user.last_name }}" placeholder="Last name"></div>
+          <div class="fg"><label>Email Address</label><input type="email" name="email" value="{{ user.email }}" placeholder="Email address"></div>
+          <div class="fg"><label>Phone Number</label><input type="text" name="phone" value="{{ profile.phone }}" placeholder="+91 9876543210"></div>
+          <div class="fg full"><label>Location</label><input type="text" name="location" value="{{ profile.location }}" placeholder="e.g. Bangalore, Karnataka"></div>
+        </div>
+
+        <!-- Role-specific -->
+        {% if profile.role == 'employer' %}
+        <div class="sec-title">Company Information</div>
+        <div class="grid2">
+          <div class="fg full"><label>Company Name</label><input type="text" name="company_name" value="{{ profile.company_name }}" placeholder="Your company name"></div>
+          <div class="fg full"><label>Company Website</label><input type="url" name="website" value="{{ profile.website }}" placeholder="https://company.com"></div>
+        </div>
+        {% else %}
+        <div class="sec-title">Professional Details</div>
+        <div class="grid2">
+          <div class="fg"><label>Years of Experience</label><input type="number" name="experience_years" value="{{ profile.experience_years }}" placeholder="e.g. 3" min="0" max="50"></div>
+          <div class="fg"><label>LinkedIn Profile</label><input type="url" name="linkedin" value="{{ profile.linkedin }}" placeholder="https://linkedin.com/in/..."></div>
+          <div class="fg"><label>GitHub Profile</label><input type="url" name="github" value="{{ profile.github }}" placeholder="https://github.com/..."></div>
+          <div class="fg"><label>Portfolio / Website</label><input type="url" name="website" value="{{ profile.website }}" placeholder="https://yoursite.com"></div>
+          <div class="fg full"><label>Skills <span style="font-weight:400;color:#94a3b8;">(comma separated)</span></label><input type="text" name="skills" value="{{ profile.skills }}" placeholder="e.g. Python, Django, React, PostgreSQL"></div>
+        </div>
+        {% endif %}
+
+        <!-- Bio -->
+        <div class="sec-title">About</div>
+        <div class="fg">
+          <label>Bio</label>
+          <textarea name="bio" placeholder="Tell employers about yourself, your experience and what you're looking for...">{{ profile.bio }}</textarea>
+        </div>
+
+        {% if profile.role != 'employer' %}
+        <!-- Resume -->
+        <div class="sec-title">Resume</div>
+        <div class="fg">
+          <label>Upload Resume <span style="font-weight:400;color:#94a3b8;">(PDF, DOC, DOCX)</span></label>
+          <input type="file" name="resume" accept=".pdf,.doc,.docx" style="padding:.5rem .7rem;">
+          {% if profile.resume %}
+          <a href="{{ profile.resume.url }}" target="_blank" style="font-size:.8rem;color:#10b981;margin-top:.3rem;display:inline-flex;align-items:center;gap:.35rem;">
+            <i class="bi bi-file-earmark-check-fill"></i>Current resume on file — click to view
+          </a>
+          {% endif %}
+        </div>
+        {% endif %}
+
+        <!-- Actions -->
+        <div style="display:flex;gap:.75rem;justify-content:flex-end;margin-top:1.75rem;padding-top:1.25rem;border-top:1px solid #f1f5f9;">
+          <a href="{% url 'dashboard' %}" class="btn-cancel"><i class="bi bi-x"></i>Cancel</a>
+          <button type="submit" class="btn-save"><i class="bi bi-check-lg"></i>Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+document.getElementById('avInput').addEventListener('change', function() {
+  const file = this.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const prev = document.getElementById('avPreview');
+    const init = document.getElementById('avInitial');
+    prev.src = e.target.result;
+    prev.style.display = 'block';
+    if (init) init.style.display = 'none';
+  };
+  reader.readAsDataURL(file);
+});
+</script>
+{% endblock %}

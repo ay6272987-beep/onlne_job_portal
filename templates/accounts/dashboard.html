@@ -1,0 +1,298 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard - JobConnect{% endblock %}
+{% block extra_head %}
+<style>
+:root{--brand:#4f46e5;--bh:#3730a3;--bl:#818cf8;--b10:rgba(79,70,229,.1);--ok:#10b981;--warn:#f59e0b;--bad:#ef4444;--info:#06b6d4;--surf:#fff;--bg:#f4f6fb;--bdr:#e2e8f0;--tx:#0f172a;--mu:#64748b;--sw:240px;--nh:64px;}
+.db{display:flex;min-height:calc(100vh - var(--nh));background:var(--bg);}
+.db-side{width:var(--sw);background:var(--surf);border-right:1px solid var(--bdr);display:flex;flex-direction:column;padding:1.25rem .875rem;position:sticky;top:var(--nh);height:calc(100vh - var(--nh));overflow-y:auto;flex-shrink:0;gap:.15rem;}
+.slbl{font-size:.66rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--mu);padding:.7rem .75rem .3rem;margin-top:.4rem;}
+.si{display:flex;align-items:center;gap:.6rem;padding:.58rem .82rem;border-radius:10px;font-size:.868rem;font-weight:600;color:var(--mu);cursor:pointer;transition:all .15s;border:none;background:none;width:100%;text-align:left;text-decoration:none;}
+.si i{width:18px;text-align:center;font-size:.95rem;flex-shrink:0;}
+.si:hover{color:var(--brand);background:var(--b10);}
+.si.on{color:var(--brand);background:var(--b10);}
+.sbadge{margin-left:auto;font-size:.67rem;font-weight:800;background:var(--brand);color:#fff;padding:.08rem .4rem;border-radius:20px;min-width:18px;text-align:center;}
+.ssep{height:1px;background:var(--bdr);margin:.5rem .5rem;}
+.db-main{flex:1;padding:2rem 2.25rem;overflow-x:hidden;}
+.pgh{margin-bottom:1.75rem;}
+.pgh h1{font-size:1.45rem;font-weight:800;color:var(--tx);margin:0;}
+.pgh p{color:var(--mu);font-size:.875rem;margin:.3rem 0 0;}
+.dbtab{display:none;}
+.dbtab.on{display:block;}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:.875rem;margin-bottom:1.75rem;}
+.stat{background:var(--surf);border:1px solid var(--bdr);border-radius:13px;padding:1.1rem 1.3rem;display:flex;align-items:center;gap:.9rem;transition:box-shadow .18s;}
+.stat:hover{box-shadow:0 4px 18px rgba(0,0,0,.06);}
+.sico{width:42px;height:42px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;}
+.sico.v{background:var(--b10);color:var(--brand);}.sico.g{background:rgba(16,185,129,.1);color:var(--ok);}.sico.y{background:rgba(245,158,11,.1);color:var(--warn);}.sico.c{background:rgba(6,182,212,.1);color:var(--info);}
+.snum{font-size:1.55rem;font-weight:800;color:var(--tx);line-height:1;}
+.slb{font-size:.75rem;font-weight:600;color:var(--mu);margin-top:.18rem;}
+.profhero{background:linear-gradient(135deg,#4f46e5 0%,#7c3aed 55%,#06b6d4 100%);border-radius:16px;padding:1.75rem 2rem;color:#fff;margin-bottom:1.75rem;display:flex;align-items:center;gap:1.5rem;position:relative;overflow:hidden;}
+.profhero::before{content:"";position:absolute;right:-50px;top:-50px;width:220px;height:220px;border-radius:50%;background:rgba(255,255,255,.06);}
+.avwrap{position:relative;flex-shrink:0;z-index:1;}
+.avimg{width:80px;height:80px;border-radius:50%;background:rgba(255,255,255,.25);backdrop-filter:blur(8px);border:3px solid rgba(255,255,255,.4);display:flex;align-items:center;justify-content:center;font-size:1.8rem;font-weight:800;color:#fff;overflow:hidden;cursor:pointer;transition:all .2s;position:relative;}
+.avimg img{width:100%;height:100%;object-fit:cover;}
+.avover{position:absolute;inset:0;border-radius:50%;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .2s;}
+.avwrap:hover .avover{opacity:1;}
+.avover i{color:#fff;font-size:1.1rem;}
+.avhint{font-size:.72rem;opacity:.7;margin-top:.4rem;text-align:center;}
+.profinfo{z-index:1;flex:1;}
+.profname{font-size:1.3rem;font-weight:800;margin-bottom:.2rem;}
+.profmeta{font-size:.82rem;opacity:.8;display:flex;align-items:center;gap:.75rem;flex-wrap:wrap;margin-bottom:.75rem;}
+.profbtns{display:flex;gap:.6rem;flex-wrap:wrap;}
+.pbtn{display:inline-flex;align-items:center;gap:.35rem;padding:.42rem .9rem;border-radius:8px;font-size:.8rem;font-weight:700;text-decoration:none;transition:all .15s;cursor:pointer;border:none;}
+.pbtn.ol{background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.35);color:#fff;}
+.pbtn.ol:hover{background:rgba(255,255,255,.28);color:#fff;}
+.pbtn.sl{background:#fff;color:var(--brand);}
+.pbtn.sl:hover{background:rgba(255,255,255,.9);}
+.panel{background:var(--surf);border:1px solid var(--bdr);border-radius:15px;overflow:hidden;margin-bottom:1.4rem;}
+.ph{display:flex;align-items:center;justify-content:space-between;padding:1rem 1.4rem;border-bottom:1px solid var(--bdr);}
+.ph h2{font-size:.955rem;font-weight:800;margin:0;color:var(--tx);display:flex;align-items:center;gap:.45rem;}
+.pb{padding:1.25rem 1.4rem;}
+.pbf{padding:0 1.4rem;}
+.bp{display:inline-flex;align-items:center;gap:.32rem;padding:.38rem .85rem;border-radius:8px;font-size:.8rem;font-weight:700;background:var(--brand);color:#fff;border:none;text-decoration:none;cursor:pointer;transition:all .15s;}
+.bp:hover{background:var(--bh);color:#fff;}
+.bo{display:inline-flex;align-items:center;gap:.32rem;padding:.38rem .85rem;border-radius:8px;font-size:.8rem;font-weight:700;border:1.5px solid var(--bdr);color:var(--mu);background:none;text-decoration:none;cursor:pointer;transition:all .15s;}
+.bo:hover{border-color:var(--brand);color:var(--brand);}
+.jrow{display:flex;align-items:center;gap:.9rem;padding:.85rem 0;border-bottom:1px solid #f1f5f9;}
+.jrow:last-child{border-bottom:none;}
+.jico{width:38px;height:38px;border-radius:9px;background:var(--b10);color:var(--brand);display:flex;align-items:center;justify-content:center;font-size:.95rem;flex-shrink:0;}
+.ji{flex:1;min-width:0;}
+.jt2{font-size:.88rem;font-weight:700;color:var(--tx);margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.jm{font-size:.755rem;color:var(--mu);margin-top:.12rem;display:flex;gap:.65rem;flex-wrap:wrap;}
+.jm span{display:flex;align-items:center;gap:.22rem;}
+.ja{display:flex;gap:.35rem;flex-shrink:0;}
+.ac{display:flex;align-items:center;gap:.9rem;padding:.9rem 1rem;border:1px solid var(--bdr);border-radius:11px;margin-bottom:.6rem;transition:box-shadow .15s;}
+.ac:last-child{margin-bottom:0;}
+.ac:hover{box-shadow:0 3px 14px rgba(0,0,0,.06);}
+.aico{width:40px;height:40px;border-radius:9px;background:var(--bg);color:var(--brand);display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;border:1px solid var(--bdr);}
+.ab{flex:1;min-width:0;}
+.at{font-size:.9rem;font-weight:700;color:var(--tx);margin:0;}
+.am{font-size:.775rem;color:var(--mu);margin-top:.1rem;display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;}
+.ar{display:flex;flex-direction:column;align-items:flex-end;gap:.4rem;flex-shrink:0;}
+.sb2{display:inline-flex;align-items:center;gap:.28rem;font-size:.7rem;font-weight:700;padding:.22rem .6rem;border-radius:20px;white-space:nowrap;}
+.sb2::before{content:"";width:5px;height:5px;border-radius:50%;display:inline-block;flex-shrink:0;}
+.s-pending{background:#fef9c3;color:#a16207;}.s-pending::before{background:#eab308;}
+.s-reviewed{background:#dbeafe;color:#1e40af;}.s-reviewed::before{background:#3b82f6;}
+.s-shortlisted{background:#ede9fe;color:#5b21b6;}.s-shortlisted::before{background:#8b5cf6;}
+.s-accepted{background:#d1fae5;color:#065f46;}.s-accepted::before{background:#10b981;}
+.s-rejected{background:#fee2e2;color:#991b1b;}.s-rejected::before{background:#ef4444;}
+.atbl{width:100%;border-collapse:separate;border-spacing:0;}
+.atbl th{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--mu);padding:.55rem 1rem;background:var(--bg);border-bottom:1px solid var(--bdr);white-space:nowrap;}
+.atbl td{font-size:.845rem;padding:.82rem 1rem;border-bottom:1px solid #f1f5f9;vertical-align:middle;}
+.atbl tr:last-child td{border-bottom:none;}
+.atbl tr:hover td{background:#fafbff;}
+.tn2{font-weight:700;color:var(--tx);}.te{font-size:.75rem;color:var(--mu);}
+.sel{font-size:.76rem;font-weight:700;padding:.22rem .55rem;border-radius:7px;border:1.5px solid var(--bdr);background:#fff;color:var(--tx);cursor:pointer;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right .35rem center;padding-right:1.4rem;}
+.empty{text-align:center;padding:3rem 1rem;}
+.empty i{font-size:2.2rem;color:#cbd5e1;display:block;margin-bottom:.75rem;}
+.empty h4{font-size:.95rem;font-weight:700;color:var(--mu);margin-bottom:.4rem;}
+.empty p{font-size:.845rem;color:#94a3b8;margin-bottom:1rem;}
+.sgrid{display:grid;grid-template-columns:1fr 1fr;gap:1.1rem;}
+.fg{display:flex;flex-direction:column;gap:.4rem;}
+.fg label{font-size:.8rem;font-weight:700;color:var(--tx);}
+.fg input,.fg textarea,.fg select{padding:.6rem .85rem;border:1.5px solid var(--bdr);border-radius:9px;font-size:.865rem;font-family:inherit;color:var(--tx);background:#fff;transition:border-color .15s;outline:none;}
+.fg input:focus,.fg textarea:focus{border-color:var(--brand);}
+.fg textarea{resize:vertical;min-height:80px;}
+.full{grid-column:1/-1;}
+.aveditwrap{display:flex;align-items:center;gap:1.25rem;padding:1.1rem;background:var(--bg);border-radius:12px;margin-bottom:1.1rem;}
+.aveditimg{width:70px;height:70px;border-radius:50%;background:linear-gradient(135deg,var(--brand),var(--bl));display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.5rem;font-weight:800;overflow:hidden;flex-shrink:0;border:3px solid var(--bdr);}
+.aveditimg img{width:100%;height:100%;object-fit:cover;}
+.mnb{display:none;position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--bdr);z-index:500;padding:.4rem 0 calc(.4rem + env(safe-area-inset-bottom));}
+.mnbi{display:flex;justify-content:space-around;}
+.mi{display:flex;flex-direction:column;align-items:center;gap:.18rem;padding:.3rem .5rem;border-radius:8px;text-decoration:none;font-size:.62rem;font-weight:700;color:var(--mu);transition:color .15s;cursor:pointer;border:none;background:none;flex:1;}
+.mi i{font-size:1.25rem;}
+.mi.on{color:var(--brand);}
+.mi:hover{color:var(--brand);}
+@media(max-width:1100px){.stats{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:900px){.db-side{display:none;}.db-main{padding:1.25rem 1rem;}.mnb{display:block;}.db-main{padding-bottom:4.5rem!important;}}
+@media(max-width:640px){.stats{grid-template-columns:1fr 1fr;}.profhero{flex-direction:column;align-items:flex-start;gap:1rem;}.atbl th:nth-child(3),.atbl td:nth-child(3){display:none;}.sgrid{grid-template-columns:1fr;}.ac{flex-wrap:wrap;}.ar{flex-direction:row;align-items:center;width:100%;}}
+@media(max-width:400px){.stats{grid-template-columns:1fr;}}
+</style>
+{% endblock %}
+{% block content %}
+<div class="db">
+<aside class="db-side">
+  {% if role == 'employer' %}
+    <div class="slbl">Overview</div>
+    <button class="si on" onclick="goTab('overview',this)"><i class="bi bi-grid-1x2"></i>Overview</button>
+    <div class="slbl">Jobs</div>
+    <button class="si" onclick="goTab('myjobs',this)"><i class="bi bi-briefcase"></i>My Jobs{% if my_jobs %}<span class="sbadge">{{ my_jobs.count }}</span>{% endif %}</button>
+    <a href="{% url 'post_job' %}" class="si"><i class="bi bi-plus-circle"></i>Post New Job</a>
+    <div class="slbl">Applications</div>
+    <button class="si" onclick="goTab('applicants',this)"><i class="bi bi-people"></i>All Applicants{% if applications %}<span class="sbadge">{{ applications.count }}</span>{% endif %}</button>
+  {% else %}
+    <div class="slbl">Overview</div>
+    <button class="si on" onclick="goTab('overview',this)"><i class="bi bi-grid-1x2"></i>Overview</button>
+    <div class="slbl">Jobs</div>
+    <a href="{% url 'job_list' %}" class="si"><i class="bi bi-search"></i>Browse Jobs</a>
+    <button class="si" onclick="goTab('applications',this)"><i class="bi bi-send"></i>My Applications{% if my_applications %}<span class="sbadge">{{ my_applications.count }}</span>{% endif %}</button>
+    <button class="si" onclick="goTab('saved',this)"><i class="bi bi-bookmark"></i>Saved Jobs{% if saved_jobs %}<span class="sbadge">{{ saved_jobs.count }}</span>{% endif %}</button>
+  {% endif %}
+  <div class="ssep"></div>
+  <button class="si" onclick="goTab('settings',this)"><i class="bi bi-person-gear"></i>Profile Settings</button>
+  <a href="{% url 'logout' %}" class="si" style="color:var(--bad);margin-top:.25rem;"><i class="bi bi-box-arrow-right"></i>Sign Out</a>
+</aside>
+<main class="db-main">
+
+{% if role == 'employer' %}
+<div class="dbtab on" id="tab-overview">
+  <div class="pgh"><h1>Welcome back, {{ user.first_name|default:user.username }} 👋</h1><p>Here's what's happening with your listings today.</p></div>
+  <div class="stats">
+    <div class="stat"><div class="sico v"><i class="bi bi-briefcase-fill"></i></div><div><div class="snum">{{ my_jobs.count }}</div><div class="slb">Active Jobs</div></div></div>
+    <div class="stat"><div class="sico c"><i class="bi bi-people-fill"></i></div><div><div class="snum">{{ applications.count }}</div><div class="slb">Applications</div></div></div>
+    <div class="stat"><div class="sico y"><i class="bi bi-hourglass-split"></i></div><div><div class="snum">{{ applications|length }}</div><div class="slb">Pending</div></div></div>
+    <div class="stat"><div class="sico g"><i class="bi bi-check-circle-fill"></i></div><div><div class="snum">0</div><div class="slb">Hired</div></div></div>
+  </div>
+  <div class="panel">
+    <div class="ph"><h2><i class="bi bi-briefcase" style="color:var(--brand)"></i>Recent Jobs</h2><a href="{% url 'post_job' %}" class="bp"><i class="bi bi-plus"></i>Post Job</a></div>
+    <div class="pbf">
+      {% for job in my_jobs|slice:":5" %}
+      <div class="jrow"><div class="jico"><i class="bi bi-briefcase"></i></div><div class="ji"><div class="jt2">{{ job.title }}</div><div class="jm"><span><i class="bi bi-geo-alt"></i>{{ job.location }}</span><span><i class="bi bi-people"></i>{{ job.applications.count }} applied</span><span><i class="bi bi-clock"></i>{{ job.created_at|timesince }} ago</span></div></div><div class="ja"><a href="{% url 'job_detail' job.pk %}" class="bo">View</a><a href="{% url 'edit_job' job.pk %}" class="bo">Edit</a></div></div>
+      {% empty %}<div class="empty"><i class="bi bi-briefcase"></i><h4>No jobs yet</h4><p>Post your first listing to start receiving applications.</p><a href="{% url 'post_job' %}" class="bp"><i class="bi bi-plus-circle"></i>Post a Job</a></div>{% endfor %}
+    </div>
+  </div>
+  {% if applications %}
+  <div class="panel">
+    <div class="ph"><h2><i class="bi bi-people" style="color:var(--brand)"></i>Recent Applicants</h2></div>
+    <div style="overflow-x:auto;">
+      <table class="atbl"><thead><tr><th>Candidate</th><th>Job</th><th>Date</th><th>Status</th><th>Action</th></tr></thead>
+      <tbody>{% for app in applications|slice:":6" %}<tr><td><div class="tn2">{{ app.applicant.get_full_name|default:app.applicant.username }}</div><div class="te">{{ app.applicant.email }}</div></td><td style="font-size:.82rem;color:var(--mu);">{{ app.job.title }}</td><td style="font-size:.78rem;color:var(--mu);white-space:nowrap;">{{ app.applied_at|date:"d M Y" }}</td><td><span class="sb2 s-{{ app.status }}">{{ app.get_status_display }}</span></td><td><form method="post" action="{% url 'update_status' app.pk %}">{% csrf_token %}<select class="sel" name="status" onchange="this.form.submit()"><option value="pending" {% if app.status == 'pending' %}selected{% endif %}>Pending</option><option value="reviewed" {% if app.status == 'reviewed' %}selected{% endif %}>Reviewed</option><option value="shortlisted" {% if app.status == 'shortlisted' %}selected{% endif %}>Shortlisted</option><option value="accepted" {% if app.status == 'accepted' %}selected{% endif %}>Accepted</option><option value="rejected" {% if app.status == 'rejected' %}selected{% endif %}>Rejected</option></select></form></td></tr>{% endfor %}</tbody>
+      </table>
+    </div>
+  </div>
+  {% endif %}
+</div>
+
+<div class="dbtab" id="tab-myjobs">
+  <div class="pgh"><h1>My Job Listings</h1><p>Manage all your posted jobs.</p></div>
+  <div class="panel"><div class="ph"><h2><i class="bi bi-briefcase" style="color:var(--brand)"></i>All Jobs ({{ my_jobs.count }})</h2><a href="{% url 'post_job' %}" class="bp"><i class="bi bi-plus"></i>Post New</a></div>
+  <div class="pbf">{% for job in my_jobs %}<div class="jrow"><div class="jico"><i class="bi bi-briefcase"></i></div><div class="ji"><div class="jt2">{{ job.title }}</div><div class="jm"><span><i class="bi bi-building"></i>{{ job.company }}</span><span><i class="bi bi-geo-alt"></i>{{ job.location }}</span><span><i class="bi bi-tag"></i>{{ job.get_job_type_display }}</span><span><i class="bi bi-people"></i>{{ job.applications.count }} apps</span></div></div><div class="ja"><a href="{% url 'job_detail' job.pk %}" class="bo"><i class="bi bi-eye"></i></a><a href="{% url 'edit_job' job.pk %}" class="bo"><i class="bi bi-pencil"></i></a><a href="{% url 'delete_job' job.pk %}" class="bo" style="color:var(--bad);border-color:#fca5a5;" onclick="return confirm('Delete this job?')"><i class="bi bi-trash"></i></a></div></div>{% empty %}<div class="empty"><i class="bi bi-briefcase"></i><h4>No jobs yet</h4><p>Start attracting candidates.</p><a href="{% url 'post_job' %}" class="bp">Post a Job</a></div>{% endfor %}</div></div>
+</div>
+
+<div class="dbtab" id="tab-applicants">
+  <div class="pgh"><h1>All Applicants</h1><p>Review and manage all applications.</p></div>
+  <div class="panel"><div class="ph"><h2><i class="bi bi-people" style="color:var(--brand)"></i>Applications ({{ applications.count }})</h2></div>
+  <div style="overflow-x:auto;"><table class="atbl"><thead><tr><th>Candidate</th><th>Job Applied For</th><th>Date</th><th>Status</th><th>Update</th></tr></thead>
+  <tbody>{% for app in applications %}<tr><td><div class="tn2">{{ app.applicant.get_full_name|default:app.applicant.username }}</div><div class="te">{{ app.applicant.email }}</div></td><td style="font-size:.82rem;color:var(--mu);">{{ app.job.title }}</td><td style="font-size:.78rem;color:var(--mu);">{{ app.applied_at|date:"d M Y" }}</td><td><span class="sb2 s-{{ app.status }}">{{ app.get_status_display }}</span></td><td><form method="post" action="{% url 'update_status' app.pk %}">{% csrf_token %}<select class="sel" name="status" onchange="this.form.submit()"><option value="pending" {% if app.status == 'pending' %}selected{% endif %}>Pending</option><option value="reviewed" {% if app.status == 'reviewed' %}selected{% endif %}>Reviewed</option><option value="shortlisted" {% if app.status == 'shortlisted' %}selected{% endif %}>Shortlisted</option><option value="accepted" {% if app.status == 'accepted' %}selected{% endif %}>Accepted</option><option value="rejected" {% if app.status == 'rejected' %}selected{% endif %}>Rejected</option></select></form></td></tr>{% empty %}<tr><td colspan="5" style="text-align:center;padding:3rem;color:var(--mu);">No applications yet.</td></tr>{% endfor %}</tbody>
+  </table></div></div>
+</div>
+
+{% else %}
+<div class="dbtab on" id="tab-overview">
+  <div class="pgh"><h1>Welcome back, {{ user.first_name|default:user.username }} 👋</h1><p>Track your applications and discover new opportunities.</p></div>
+  <form method="post" action="{% url 'edit_profile' %}" enctype="multipart/form-data" id="heroForm">
+    {% csrf_token %}
+    <div class="profhero">
+      <div class="avwrap">
+        <div class="avimg" onclick="document.getElementById('avIn').click()">
+          {% if user.profile.avatar %}<img src="{{ user.profile.avatar.url }}" id="avPrev" alt="">{% else %}<span id="avInit">{{ user.first_name|slice:":1"|default:user.username|slice:":1"|upper }}</span><img id="avPrev" style="display:none;" alt="">{% endif %}
+          <div class="avover"><i class="bi bi-camera-fill"></i></div>
+        </div>
+        <input type="file" name="avatar" id="avIn" accept="image/*" style="display:none">
+        <div class="avhint">Click to change</div>
+      </div>
+      <div class="profinfo">
+        <div class="profname">{{ user.get_full_name|default:user.username }}</div>
+        <div class="profmeta">
+          <span><i class="bi bi-person-badge"></i>Job Seeker</span>
+          {% if user.profile.location %}<span><i class="bi bi-geo-alt"></i>{{ user.profile.location }}</span>{% endif %}
+          {% if user.profile.experience_years %}<span><i class="bi bi-clock-history"></i>{{ user.profile.experience_years }}y exp</span>{% endif %}
+        </div>
+        <div class="profbtns">
+          <button type="submit" class="pbtn sl"><i class="bi bi-upload"></i>Save Photo</button>
+          <a href="{% url 'edit_profile' %}" class="pbtn ol"><i class="bi bi-pencil"></i>Edit Profile</a>
+        </div>
+      </div>
+    </div>
+  </form>
+  <div class="stats">
+    <div class="stat"><div class="sico v"><i class="bi bi-send-fill"></i></div><div><div class="snum">{{ my_applications.count }}</div><div class="slb">Applied</div></div></div>
+    <div class="stat"><div class="sico y"><i class="bi bi-hourglass-split"></i></div><div><div class="snum">{{ my_applications|length }}</div><div class="slb">In Review</div></div></div>
+    <div class="stat"><div class="sico g"><i class="bi bi-check-circle-fill"></i></div><div><div class="snum">0</div><div class="slb">Offers</div></div></div>
+    <div class="stat"><div class="sico c"><i class="bi bi-bookmark-fill"></i></div><div><div class="snum">{{ saved_jobs.count|default:"0" }}</div><div class="slb">Saved</div></div></div>
+  </div>
+  <div class="panel"><div class="ph"><h2><i class="bi bi-send" style="color:var(--brand)"></i>Recent Applications</h2><a href="{% url 'job_list' %}" class="bo"><i class="bi bi-search"></i>Find Jobs</a></div>
+  <div class="pb">{% for app in my_applications|slice:":5" %}<div class="ac"><div class="aico"><i class="bi bi-briefcase"></i></div><div class="ab"><div class="at">{{ app.job.title }}</div><div class="am"><span><i class="bi bi-building"></i>{{ app.job.company }}</span><span><i class="bi bi-geo-alt"></i>{{ app.job.location }}</span><span><i class="bi bi-calendar3"></i>{{ app.applied_at|date:"d M" }}</span></div></div><div class="ar"><span class="sb2 s-{{ app.status }}">{{ app.get_status_display }}</span><a href="{% url 'job_detail' app.job.pk %}" class="bo" style="font-size:.75rem;padding:.28rem .65rem;">View</a></div></div>{% empty %}<div class="empty"><i class="bi bi-send"></i><h4>No applications yet</h4><p>Start applying to jobs.</p><a href="{% url 'job_list' %}" class="bp"><i class="bi bi-search"></i>Browse Jobs</a></div>{% endfor %}</div></div>
+</div>
+
+<div class="dbtab" id="tab-applications">
+  <div class="pgh"><h1>My Applications</h1><p>Track all the jobs you've applied to.</p></div>
+  <div class="panel"><div class="ph"><h2><i class="bi bi-send" style="color:var(--brand)"></i>Applications ({{ my_applications.count }})</h2><a href="{% url 'job_list' %}" class="bp"><i class="bi bi-search"></i>Find Jobs</a></div>
+  <div class="pb">{% for app in my_applications %}<div class="ac"><div class="aico"><i class="bi bi-briefcase"></i></div><div class="ab"><div class="at">{{ app.job.title }}</div><div class="am"><span><i class="bi bi-building"></i>{{ app.job.company }}</span><span><i class="bi bi-geo-alt"></i>{{ app.job.location }}</span><span><i class="bi bi-tag"></i>{{ app.job.get_job_type_display }}</span><span><i class="bi bi-calendar3"></i>{{ app.applied_at|date:"d M Y" }}</span></div></div><div class="ar"><span class="sb2 s-{{ app.status }}">{{ app.get_status_display }}</span><a href="{% url 'job_detail' app.job.pk %}" class="bo" style="font-size:.75rem;padding:.28rem .65rem;">View</a></div></div>{% empty %}<div class="empty"><i class="bi bi-inbox"></i><h4>No applications yet</h4><p>Browse jobs and start applying.</p><a href="{% url 'job_list' %}" class="bp">Browse Jobs</a></div>{% endfor %}</div></div>
+</div>
+
+<div class="dbtab" id="tab-saved">
+  <div class="pgh"><h1>Saved Jobs</h1><p>Jobs you've bookmarked for later.</p></div>
+  <div class="panel"><div class="ph"><h2><i class="bi bi-bookmark" style="color:var(--brand)"></i>Saved ({{ saved_jobs.count|default:"0" }})</h2></div>
+  <div class="pb">{% if saved_jobs %}{% for s in saved_jobs %}<div class="ac"><div class="aico"><i class="bi bi-briefcase"></i></div><div class="ab"><div class="at">{{ s.job.title }}</div><div class="am"><span><i class="bi bi-building"></i>{{ s.job.company }}</span><span><i class="bi bi-geo-alt"></i>{{ s.job.location }}</span></div></div><div class="ar" style="flex-direction:row;"><a href="{% url 'job_detail' s.job.pk %}" class="bp" style="font-size:.78rem;">Apply</a><a href="{% url 'save_job' s.job.pk %}" class="bo" style="font-size:.78rem;color:var(--bad);">Remove</a></div></div>{% endfor %}{% else %}<div class="empty"><i class="bi bi-bookmark"></i><h4>No saved jobs</h4><p>Bookmark jobs while browsing to find them here later.</p><a href="{% url 'job_list' %}" class="bp">Browse Jobs</a></div>{% endif %}</div></div>
+</div>
+{% endif %}
+
+<div class="dbtab" id="tab-settings">
+  <div class="pgh"><h1>Profile Settings</h1><p>Update your personal information and profile photo.</p></div>
+  <div class="panel"><div class="ph"><h2><i class="bi bi-person-circle" style="color:var(--brand)"></i>Edit Profile</h2></div>
+  <div class="pb">
+    <div class="aveditwrap">
+      <div class="aveditimg" id="sAvImg">{% if user.profile.avatar %}<img src="{{ user.profile.avatar.url }}" id="sAvPrev" alt="">{% else %}<span id="sAvInit">{{ user.first_name|slice:":1"|default:user.username|slice:":1"|upper }}</span><img id="sAvPrev" style="display:none;" alt="">{% endif %}</div>
+      <div><h4 style="font-size:.88rem;font-weight:700;margin:0 0 .2rem;">Profile Photo</h4><p style="font-size:.775rem;color:var(--mu);margin:0 0 .5rem;">JPG, PNG or GIF. Max 5MB.</p><label for="sAvIn" class="bp" style="cursor:pointer;"><i class="bi bi-upload"></i>Upload Photo</label></div>
+    </div>
+    <form method="post" action="{% url 'edit_profile' %}" enctype="multipart/form-data">
+      {% csrf_token %}
+      <input type="file" id="sAvIn" name="avatar" accept="image/*" style="display:none;">
+      <div class="sgrid">
+        <div class="fg"><label>First Name</label><input type="text" name="first_name" value="{{ user.first_name }}" placeholder="First name"></div>
+        <div class="fg"><label>Last Name</label><input type="text" name="last_name" value="{{ user.last_name }}" placeholder="Last name"></div>
+        <div class="fg"><label>Email</label><input type="email" name="email" value="{{ user.email }}" placeholder="Email"></div>
+        <div class="fg"><label>Phone</label><input type="text" name="phone" value="{{ user.profile.phone }}" placeholder="Phone number"></div>
+        <div class="fg"><label>Location</label><input type="text" name="location" value="{{ user.profile.location }}" placeholder="City, State"></div>
+        {% if user.profile.role == 'employer' %}<div class="fg"><label>Company Name</label><input type="text" name="company_name" value="{{ user.profile.company_name }}" placeholder="Company name"></div>
+        {% else %}<div class="fg"><label>Experience (years)</label><input type="number" name="experience_years" value="{{ user.profile.experience_years }}" placeholder="e.g. 2" min="0"></div>{% endif %}
+        <div class="fg full"><label>Skills</label><input type="text" name="skills" value="{{ user.profile.skills }}" placeholder="e.g. Python, Django, React"></div>
+        <div class="fg full"><label>Bio</label><textarea name="bio" placeholder="Tell employers about yourself...">{{ user.profile.bio }}</textarea></div>
+        {% if user.profile.role != 'employer' %}
+        <div class="fg"><label>LinkedIn</label><input type="url" name="linkedin" value="{{ user.profile.linkedin }}" placeholder="https://linkedin.com/in/..."></div>
+        <div class="fg"><label>GitHub</label><input type="url" name="github" value="{{ user.profile.github }}" placeholder="https://github.com/..."></div>
+        <div class="fg full"><label>Resume (PDF)</label><input type="file" name="resume" accept=".pdf,.doc,.docx" style="padding:.5rem .7rem;">{% if user.profile.resume %}<a href="{{ user.profile.resume.url }}" target="_blank" style="font-size:.78rem;color:var(--ok);margin-top:.3rem;display:inline-flex;align-items:center;gap:.3rem;"><i class="bi bi-file-earmark-check"></i>Current resume</a>{% endif %}</div>
+        {% endif %}
+      </div>
+      <div style="display:flex;gap:.75rem;justify-content:flex-end;margin-top:1.25rem;">
+        <a href="{% url 'dashboard' %}" class="bo">Cancel</a>
+        <button type="submit" class="bp"><i class="bi bi-check-lg"></i>Save Changes</button>
+      </div>
+    </form>
+  </div></div>
+</div>
+
+</main>
+</div>
+<nav class="mnb">
+  <div class="mnbi">
+    {% if role == 'employer' %}
+    <button class="mi on" onclick="goTab('overview',this)" id="mb-overview"><i class="bi bi-grid-1x2"></i>Overview</button>
+    <button class="mi" onclick="goTab('myjobs',this)" id="mb-myjobs"><i class="bi bi-briefcase"></i>Jobs</button>
+    <button class="mi" onclick="goTab('applicants',this)" id="mb-applicants"><i class="bi bi-people"></i>Applicants</button>
+    {% else %}
+    <button class="mi on" onclick="goTab('overview',this)" id="mb-overview"><i class="bi bi-grid-1x2"></i>Home</button>
+    <button class="mi" onclick="goTab('applications',this)" id="mb-applications"><i class="bi bi-send"></i>Applied</button>
+    <button class="mi" onclick="goTab('saved',this)" id="mb-saved"><i class="bi bi-bookmark"></i>Saved</button>
+    {% endif %}
+    <button class="mi" onclick="goTab('settings',this)" id="mb-settings"><i class="bi bi-person-gear"></i>Profile</button>
+  </div>
+</nav>
+{% endblock %}
+{% block scripts %}
+<script>
+function goTab(name,el){
+  document.querySelectorAll(".dbtab").forEach(t=>t.classList.remove("on"));
+  document.getElementById("tab-"+name).classList.add("on");
+  document.querySelectorAll(".si").forEach(s=>s.classList.remove("on"));
+  if(el&&el.classList.contains("si"))el.classList.add("on");
+  document.querySelectorAll(".mi").forEach(m=>m.classList.remove("on"));
+  const mb=document.getElementById("mb-"+name);
+  if(mb)mb.classList.add("on");
+}
+const avIn=document.getElementById("avIn");
+if(avIn){avIn.addEventListener("change",function(){const f=this.files[0];if(!f)return;const r=new FileReader();r.onload=e=>{const p=document.getElementById("avPrev"),i=document.getElementById("avInit");p.src=e.target.result;p.style.display="block";if(i)i.style.display="none";document.getElementById("heroForm").submit();};r.readAsDataURL(f);});}
+const sAvIn=document.getElementById("sAvIn");
+if(sAvIn){sAvIn.addEventListener("change",function(){const f=this.files[0];if(!f)return;const r=new FileReader();r.onload=e=>{const p=document.getElementById("sAvPrev"),i=document.getElementById("sAvInit");if(p){p.src=e.target.result;p.style.display="block";}if(i)i.style.display="none";};r.readAsDataURL(f);});}
+</script>
+{% endblock %}

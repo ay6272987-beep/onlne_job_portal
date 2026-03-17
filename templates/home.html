@@ -1,0 +1,660 @@
+{% extends 'base.html' %}
+{% block title %}JobConnect — Find Your Dream Career{% endblock %}
+{% block navbar_class %}hero-page{% endblock %}
+
+{% block content %}
+<style>
+/* ===== HERO ===== */
+.hero {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 40%, #0f172a 100%);
+  position: relative;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+}
+.hero-bg-grid {
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(99,102,241,0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(99,102,241,0.06) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
+.hero-glow-1 {
+  position: absolute; top: -100px; right: -100px;
+  width: 600px; height: 600px;
+  background: radial-gradient(circle, rgba(99,102,241,0.25) 0%, transparent 65%);
+  border-radius: 50%;
+  animation: pulse1 6s ease-in-out infinite;
+}
+.hero-glow-2 {
+  position: absolute; bottom: -150px; left: -100px;
+  width: 500px; height: 500px;
+  background: radial-gradient(circle, rgba(6,182,212,0.18) 0%, transparent 65%);
+  border-radius: 50%;
+  animation: pulse2 8s ease-in-out infinite;
+}
+.hero-glow-3 {
+  position: absolute; top: 40%; left: 40%;
+  width: 300px; height: 300px;
+  background: radial-gradient(circle, rgba(139,92,246,0.12) 0%, transparent 65%);
+  border-radius: 50%;
+  animation: pulse1 5s ease-in-out infinite reverse;
+}
+@keyframes pulse1 { 0%,100%{transform:scale(1) translate(0,0)} 50%{transform:scale(1.1) translate(20px,-20px)} }
+@keyframes pulse2 { 0%,100%{transform:scale(1) translate(0,0)} 50%{transform:scale(1.08) translate(-15px,15px)} }
+
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: rgba(99,102,241,0.15);
+  border: 1px solid rgba(99,102,241,0.3);
+  color: #a5b4fc; font-size: 0.8rem; font-weight: 600;
+  padding: 0.45rem 1rem; border-radius: 30px;
+  backdrop-filter: blur(10px); margin-bottom: 1.75rem;
+  animation: fadeUp 0.6s ease both;
+}
+.hero-badge .dot { width: 6px; height: 6px; background: #6ee7b7; border-radius: 50%; animation: blink 1.5s infinite; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+.hero-title {
+  font-size: clamp(2.4rem, 5.5vw, 4rem);
+  font-weight: 900; color: white;
+  line-height: 1.1; letter-spacing: -1.5px;
+  margin-bottom: 1.25rem;
+  animation: fadeUp 0.6s 0.1s ease both;
+}
+.hero-title .line2 { display: block; }
+.hero-title .gradient-text {
+  background: linear-gradient(135deg, #818cf8 0%, #06b6d4 50%, #34d399 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+  background-size: 200%;
+  animation: gradientShift 4s ease infinite;
+}
+@keyframes gradientShift { 0%,100%{background-position:0%} 50%{background-position:100%} }
+
+.hero-subtitle {
+  color: #94a3b8; font-size: 1.05rem; line-height: 1.75;
+  margin-bottom: 2.25rem; max-width: 500px;
+  animation: fadeUp 0.6s 0.2s ease both;
+}
+
+@keyframes fadeUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+
+/* SEARCH BOX */
+.search-container {
+  animation: fadeUp 0.6s 0.3s ease both;
+  max-width: 650px;
+}
+.search-box {
+  background: rgba(255,255,255,0.97);
+  border-radius: 18px; padding: 6px;
+  display: flex; align-items: center;
+  box-shadow: 0 25px 80px rgba(0,0,0,0.4), 0 0 0 1px rgba(99,102,241,0.2);
+  position: relative; gap: 4px;
+}
+.search-field { flex: 1; position: relative; }
+.search-field i { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #94a3b8; font-size: 0.95rem; pointer-events: none; z-index: 1; }
+.search-field input {
+  width: 100%; border: none; background: transparent;
+  padding: 0.8rem 1rem 0.8rem 2.6rem;
+  font-size: 0.92rem; outline: none; color: #0f172a;
+  font-family: 'Inter', sans-serif; font-weight: 500;
+}
+.search-field input::placeholder { color: #94a3b8; font-weight: 400; }
+.search-sep { width: 1px; height: 28px; background: #e2e8f0; flex-shrink: 0; }
+.search-submit {
+  background: linear-gradient(135deg, #4f46e5, #06b6d4);
+  color: white; border: none; padding: 0.8rem 1.5rem;
+  border-radius: 13px; font-weight: 700; font-size: 0.9rem;
+  cursor: pointer; transition: all 0.2s;
+  display: flex; align-items: center; gap: 8px;
+  white-space: nowrap;
+  box-shadow: 0 4px 15px rgba(79,70,229,0.4);
+}
+.search-submit:hover { transform: scale(1.03); box-shadow: 0 6px 22px rgba(79,70,229,0.55); }
+
+/* SUGGESTIONS */
+.suggestions-dropdown {
+  position: absolute; top: calc(100% + 12px); left: 0; right: 0;
+  background: white; border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+  border: 1px solid rgba(0,0,0,0.06);
+  z-index: 999; overflow: hidden; display: none;
+}
+.suggestions-dropdown.show { display: block; }
+.sugg-section-title { font-size: 0.7rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.8px; padding: 0.65rem 1rem 0.3rem; }
+.sugg-item { display: flex; align-items: center; gap: 12px; padding: 0.65rem 1rem; cursor: pointer; transition: background 0.15s; }
+.sugg-item:hover { background: #f8fafc; }
+.sugg-icon { width: 30px; height: 30px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 0.8rem; }
+.sugg-item-text { font-size: 0.87rem; font-weight: 500; color: #0f172a; }
+.sugg-item-type { font-size: 0.7rem; color: #94a3b8; }
+.sugg-footer { padding: 0.7rem 1rem; border-top: 1px solid #f1f5f9; font-size: 0.78rem; color: #94a3b8; display: flex; align-items: center; gap: 5px; }
+
+/* LOC SUGGESTIONS */
+.loc-dropdown {
+  position: absolute; top: calc(100% + 6px); left: 0; right: 0;
+  background: white; border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.12);
+  z-index: 999; overflow: hidden; display: none;
+}
+.loc-dropdown.show { display: block; }
+.loc-item { display: flex; align-items: center; gap: 8px; padding: 0.6rem 1rem; cursor: pointer; font-size: 0.87rem; font-weight: 500; color: #0f172a; transition: background 0.15s; }
+.loc-item:hover { background: #f8fafc; color: #4f46e5; }
+
+/* TRENDING */
+.trending-wrap { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 1rem; animation: fadeUp 0.6s 0.4s ease both; }
+.trend-chip { display: inline-flex; align-items: center; gap: 5px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: rgba(255,255,255,0.75); font-size: 0.78rem; font-weight: 500; padding: 0.3rem 0.8rem; border-radius: 20px; cursor: pointer; transition: all 0.2s; backdrop-filter: blur(10px); text-decoration: none; }
+.trend-chip:hover { background: rgba(255,255,255,0.15); border-color: rgba(255,255,255,0.3); color: white; transform: translateY(-1px); }
+
+/* HERO STATS */
+.hero-stats { display: flex; gap: 0; margin-top: 2.5rem; animation: fadeUp 0.6s 0.5s ease both; }
+.hero-stat { padding: 0 2rem 0 0; position: relative; }
+.hero-stat:not(:last-child)::after { content: ''; position: absolute; right: 1rem; top: 15%; bottom: 15%; width: 1px; background: rgba(255,255,255,0.1); }
+.hero-stat .num { font-size: 1.6rem; font-weight: 900; color: white; line-height: 1; background: linear-gradient(135deg,#a5b4fc,#67e8f9); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+.hero-stat .lbl { font-size: 0.75rem; color: #64748b; font-weight: 500; margin-top: 3px; }
+
+/* RIGHT SIDE CARDS */
+.hero-cards { position: relative; height: 420px; }
+.hcard {
+  background: rgba(255,255,255,0.07);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 18px; padding: 1.25rem;
+  position: absolute;
+}
+.hcard-main { width: 260px; top: 50%; left: 50%; transform: translate(-50%,-50%); background: rgba(255,255,255,0.1); text-align: center; padding: 2rem; }
+.hcard-main i { font-size: 4rem; background: linear-gradient(135deg,#818cf8,#06b6d4); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+.hcard-1 { top: 0; right: 0; width: 220px; animation: float1 4s ease-in-out infinite; }
+.hcard-2 { bottom: 20px; left: 0; width: 210px; animation: float2 5s ease-in-out infinite; }
+.hcard-3 { top: 40%; right: -10px; width: 180px; animation: float1 3.5s ease-in-out infinite reverse; }
+@keyframes float1 { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
+@keyframes float2 { 0%,100%{transform:translateY(0)} 50%{transform:translateY(12px)} }
+.hcard-label { font-size: 0.68rem; font-weight: 700; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 0.8px; }
+.hcard-value { font-size: 0.95rem; font-weight: 700; color: white; margin-top: 3px; }
+.hcard-sub { font-size: 0.75rem; color: #6ee7b7; font-weight: 600; margin-top: 2px; }
+.hcard-sub.warn { color: #fcd34d; }
+
+/* ===== SECTIONS ===== */
+.section-pad { padding: 5rem 0; }
+
+/* CATEGORIES */
+.cat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1rem; }
+.cat-card {
+  background: white; border: 1.5px solid #f1f5f9; border-radius: 18px;
+  padding: 1.5rem 1rem; text-align: center; text-decoration: none; color: var(--dark);
+  transition: all 0.25s; display: flex; flex-direction: column; align-items: center; gap: 0.75rem;
+}
+.cat-card:hover { border-color: var(--primary); box-shadow: 0 8px 30px rgba(79,70,229,0.12); transform: translateY(-4px); color: var(--primary); }
+.cat-icon { width: 54px; height: 54px; border-radius: 15px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; transition: transform 0.25s; }
+.cat-card:hover .cat-icon { transform: scale(1.1) rotate(-5deg); }
+.cat-name { font-weight: 700; font-size: 0.88rem; }
+.cat-count { font-size: 0.72rem; color: #94a3b8; font-weight: 500; }
+
+/* JOB CARDS */
+.jobs-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.25rem; }
+.jcard {
+  background: white; border: 1px solid #f1f5f9; border-radius: 18px;
+  padding: 1.5rem; transition: all 0.25s; display: flex; flex-direction: column;
+}
+.jcard:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(79,70,229,0.12); border-color: rgba(79,70,229,0.15); }
+.jcard-company { width: 46px; height: 46px; border-radius: 13px; background: linear-gradient(135deg,#ede9fe,#e0f2fe); display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0; }
+.jcard-company img { width: 100%; height: 100%; object-fit: cover; }
+.jcard-footer { border-top: 1px solid #f8fafc; padding-top: 1rem; margin-top: auto; display: flex; align-items: center; justify-content: space-between; }
+
+/* HOW IT WORKS */
+.hiw-card { background: white; border-radius: 20px; border: 1px solid #f1f5f9; padding: 2rem 1.5rem; text-align: center; transition: all 0.25s; position: relative; overflow: hidden; }
+.hiw-card::before { content: attr(data-step); position: absolute; top: -10px; right: 1rem; font-size: 5rem; font-weight: 900; color: rgba(79,70,229,0.04); line-height: 1; }
+.hiw-card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(79,70,229,0.1); }
+.hiw-icon { width: 64px; height: 64px; border-radius: 18px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin: 0 auto 1.25rem; }
+
+/* TESTIMONIALS */
+.testi-card { background: white; border-radius: 20px; border: 1px solid #f1f5f9; padding: 1.75rem; }
+.testi-stars { color: #f59e0b; font-size: 0.85rem; margin-bottom: 0.75rem; }
+
+/* CTA */
+.cta-section {
+  background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
+  position: relative; overflow: hidden; padding: 5rem 0;
+}
+.cta-section::before { content: ''; position: absolute; inset: 0; background-image: linear-gradient(rgba(99,102,241,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(99,102,241,0.05) 1px, transparent 1px); background-size: 50px 50px; }
+
+/* COMPANIES */
+.companies-strip { overflow: hidden; position: relative; padding: 1.5rem 0; }
+.companies-scroll { display: flex; gap: 2rem; animation: scroll 20s linear infinite; width: max-content; }
+.companies-scroll:hover { animation-play-state: paused; }
+@keyframes scroll { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+.company-pill { display: flex; align-items: center; gap: 8px; background: white; border: 1px solid #f1f5f9; border-radius: 12px; padding: 0.6rem 1.2rem; white-space: nowrap; font-weight: 600; font-size: 0.85rem; color: #0f172a; flex-shrink: 0; }
+.company-pill i { font-size: 1.1rem; color: #4f46e5; }
+</style>
+
+<!-- ===== HERO ===== -->
+<section class="hero">
+  <div class="hero-bg-grid"></div>
+  <div class="hero-glow-1"></div>
+  <div class="hero-glow-2"></div>
+  <div class="hero-glow-3"></div>
+
+  <div class="container position-relative" style="z-index:2;padding-top:80px;padding-bottom:60px;">
+    <div class="row align-items-center g-5">
+      <div class="col-lg-7">
+        <div class="hero-badge">
+          <div class="dot"></div>
+          Over {{ total_jobs }}+ jobs live right now
+        </div>
+        <h1 class="hero-title">
+          Your Next Great
+          <span class="line2 gradient-text">Career Starts Here</span>
+        </h1>
+        <p class="hero-subtitle">Discover thousands of job opportunities from top companies. Connect, apply, and land your dream role — all in one place.</p>
+
+        <div class="search-container">
+          <form action="{% url 'job_list' %}" method="get" id="heroForm">
+            <div class="search-box" id="searchBox">
+              <div class="search-field" style="flex:2;">
+                <i class="bi bi-search"></i>
+                <input type="text" name="q" id="heroQ" placeholder="Job title, skill, or company..." autocomplete="off">
+                <div class="suggestions-dropdown" id="suggDrop">
+                  <div id="suggContent"></div>
+                  <div class="sugg-footer"><i class="bi bi-keyboard"></i>Press Enter to see all results</div>
+                </div>
+              </div>
+              <div class="search-sep"></div>
+              <div class="search-field" style="position:relative;">
+                <i class="bi bi-geo-alt"></i>
+                <input type="text" name="location" id="heroLoc" placeholder="City or remote" autocomplete="off">
+                <div class="loc-dropdown" id="locDrop"></div>
+              </div>
+              <button type="submit" class="search-submit">
+                <i class="bi bi-search"></i> Find Jobs
+              </button>
+            </div>
+          </form>
+
+          <div class="trending-wrap">
+            <span style="color:rgba(255,255,255,0.4);font-size:0.75rem;font-weight:600;">Trending:</span>
+            <a class="trend-chip" onclick="qs('Python Developer')"><i class="bi bi-fire" style="color:#fb923c;"></i>Python</a>
+            <a class="trend-chip" onclick="qs('React Developer')"><i class="bi bi-fire" style="color:#fb923c;"></i>React</a>
+            <a class="trend-chip" onclick="qs('Remote')"><i class="bi bi-laptop"></i>Remote</a>
+            <a class="trend-chip" onclick="qs('Data Analyst')"><i class="bi bi-graph-up"></i>Data Analyst</a>
+            <a class="trend-chip" onclick="qs('UI UX Designer')"><i class="bi bi-palette"></i>UI/UX</a>
+          </div>
+        </div>
+
+        <div class="hero-stats">
+          <div class="hero-stat"><div class="num">{{ total_jobs }}+</div><div class="lbl">Active Jobs</div></div>
+          <div class="hero-stat"><div class="num">2K+</div><div class="lbl">Companies</div></div>
+          <div class="hero-stat"><div class="num">50K+</div><div class="lbl">Job Seekers</div></div>
+          <div class="hero-stat"><div class="num">98%</div><div class="lbl">Success Rate</div></div>
+        </div>
+      </div>
+
+      <div class="col-lg-5 d-none d-lg-block">
+        <div class="hero-cards">
+          <div class="hcard hcard-main">
+            <i class="bi bi-briefcase-fill"></i>
+            <div style="color:white;font-weight:700;font-size:1rem;margin-top:0.5rem;">Find Your Dream Job</div>
+            <div style="color:rgba(255,255,255,0.5);font-size:0.78rem;margin-top:4px;">Thousands of opportunities</div>
+          </div>
+          <div class="hcard hcard-1">
+            <div class="hcard-label">🔥 Hot Opening</div>
+            <div class="hcard-value">Senior Developer</div>
+            <div class="hcard-sub">₹25L — ₹40L/yr</div>
+          </div>
+          <div class="hcard hcard-2">
+            <div class="hcard-label">📊 Today's Applications</div>
+            <div class="hcard-value" style="font-size:1.4rem;">1,248</div>
+            <div class="hcard-sub"><i class="bi bi-arrow-up me-1"></i>+12% this week</div>
+          </div>
+          <div class="hcard hcard-3">
+            <div class="hcard-label">✅ Hired Today</div>
+            <div class="hcard-value">84 people</div>
+            <div class="hcard-sub warn"><i class="bi bi-star-fill me-1"></i>Top matches</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== COMPANIES STRIP ===== -->
+<div style="background:white;border-top:1px solid #f1f5f9;border-bottom:1px solid #f1f5f9;padding:0.5rem 0;overflow:hidden;">
+  <div style="text-align:center;font-size:0.72rem;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;padding:0.75rem 0 0.5rem;">Trusted by teams at</div>
+  <div class="companies-strip">
+    <div class="companies-scroll">
+      <div class="company-pill"><i class="bi bi-google"></i>Google</div>
+      <div class="company-pill"><i class="bi bi-microsoft"></i>Microsoft</div>
+      <div class="company-pill"><i class="bi bi-amazon"></i>Amazon</div>
+      <div class="company-pill"><i class="bi bi-meta"></i>Meta</div>
+      <div class="company-pill"><i class="bi bi-building"></i>Infosys</div>
+      <div class="company-pill"><i class="bi bi-building"></i>TCS</div>
+      <div class="company-pill"><i class="bi bi-building"></i>Wipro</div>
+      <div class="company-pill"><i class="bi bi-shop"></i>Flipkart</div>
+      <div class="company-pill"><i class="bi bi-building"></i>Zomato</div>
+      <div class="company-pill"><i class="bi bi-building"></i>Swiggy</div>
+      <!-- duplicate for seamless loop -->
+      <div class="company-pill"><i class="bi bi-google"></i>Google</div>
+      <div class="company-pill"><i class="bi bi-microsoft"></i>Microsoft</div>
+      <div class="company-pill"><i class="bi bi-amazon"></i>Amazon</div>
+      <div class="company-pill"><i class="bi bi-meta"></i>Meta</div>
+      <div class="company-pill"><i class="bi bi-building"></i>Infosys</div>
+      <div class="company-pill"><i class="bi bi-building"></i>TCS</div>
+      <div class="company-pill"><i class="bi bi-building"></i>Wipro</div>
+      <div class="company-pill"><i class="bi bi-shop"></i>Flipkart</div>
+      <div class="company-pill"><i class="bi bi-building"></i>Zomato</div>
+      <div class="company-pill"><i class="bi bi-building"></i>Swiggy</div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CATEGORIES ===== -->
+<section class="section-pad" style="background:#f8fafc;">
+  <div class="container">
+    <div class="text-center mb-5">
+      <div class="section-tag"><i class="bi bi-grid-1x2"></i>Explore</div>
+      <h2 class="section-title">Browse by Category</h2>
+      <p style="color:#64748b;font-size:0.95rem;margin-top:0.5rem;">Find jobs that match your expertise and interests</p>
+    </div>
+    <div class="cat-grid">
+      <a href="{% url 'job_list' %}?job_type=full-time" class="cat-card">
+        <div class="cat-icon" style="background:linear-gradient(135deg,#ede9fe,#ddd6fe);"><i class="bi bi-building" style="color:#5b21b6;"></i></div>
+        <div class="cat-name">Full Time</div>
+        <div class="cat-count">Permanent roles</div>
+      </a>
+      <a href="{% url 'job_list' %}?job_type=part-time" class="cat-card">
+        <div class="cat-icon" style="background:linear-gradient(135deg,#d1fae5,#a7f3d0);"><i class="bi bi-clock" style="color:#065f46;"></i></div>
+        <div class="cat-name">Part Time</div>
+        <div class="cat-count">Flexible hours</div>
+      </a>
+      <a href="{% url 'job_list' %}?job_type=remote" class="cat-card">
+        <div class="cat-icon" style="background:linear-gradient(135deg,#e0f2fe,#bae6fd);"><i class="bi bi-laptop" style="color:#0369a1;"></i></div>
+        <div class="cat-name">Remote</div>
+        <div class="cat-count">Work from anywhere</div>
+      </a>
+      <a href="{% url 'job_list' %}?job_type=internship" class="cat-card">
+        <div class="cat-icon" style="background:linear-gradient(135deg,#fef3c7,#fde68a);"><i class="bi bi-mortarboard" style="color:#92400e;"></i></div>
+        <div class="cat-name">Internship</div>
+        <div class="cat-count">Fresh graduates</div>
+      </a>
+      <a href="{% url 'job_list' %}?job_type=contract" class="cat-card">
+        <div class="cat-icon" style="background:linear-gradient(135deg,#fce7f3,#fbcfe8);"><i class="bi bi-file-earmark-text" style="color:#9d174d;"></i></div>
+        <div class="cat-name">Contract</div>
+        <div class="cat-count">Project based</div>
+      </a>
+      <a href="{% url 'job_list' %}" class="cat-card" style="border-style:dashed;">
+        <div class="cat-icon" style="background:linear-gradient(135deg,#f1f5f9,#e2e8f0);"><i class="bi bi-plus-lg" style="color:#64748b;"></i></div>
+        <div class="cat-name" style="color:#64748b;">View All</div>
+        <div class="cat-count">All categories</div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ===== LATEST JOBS ===== -->
+<section class="section-pad" style="background:white;">
+  <div class="container">
+    <div class="d-flex justify-content-between align-items-end mb-5">
+      <div>
+        <div class="section-tag"><i class="bi bi-lightning-charge-fill"></i>Fresh Listings</div>
+        <h2 class="section-title mb-0">Latest Opportunities</h2>
+      </div>
+      <a href="{% url 'job_list' %}" class="btn btn-outline-primary px-4" style="border-radius:10px;font-size:0.88rem;">
+        View All <i class="bi bi-arrow-right ms-1"></i>
+      </a>
+    </div>
+
+    <div class="jobs-grid">
+      {% for job in recent_jobs %}
+      <div class="jcard">
+        <div class="d-flex align-items-start gap-3 mb-3">
+          <div class="jcard-company">
+            {% if job.company_logo %}
+              <img src="{{ job.company_logo.url }}" alt="{{ job.company }}">
+            {% else %}
+              <i class="bi bi-building" style="color:#4f46e5;font-size:1.1rem;"></i>
+            {% endif %}
+          </div>
+          <div style="flex:1;">
+            <div style="font-weight:700;color:#0f172a;font-size:0.95rem;">{{ job.company }}</div>
+            <div style="font-size:0.75rem;color:#94a3b8;margin-top:1px;"><i class="bi bi-geo-alt me-1"></i>{{ job.location }}</div>
+          </div>
+          <span class="badge-type badge-{{ job.job_type }}">{{ job.get_job_type_display }}</span>
+        </div>
+        <h5 style="font-weight:700;font-size:1rem;color:#0f172a;margin-bottom:0.5rem;line-height:1.4;">{{ job.title }}</h5>
+        {% if job.get_skills_list %}
+        <div style="margin-bottom:0.75rem;">
+          {% for skill in job.get_skills_list|slice:":3" %}
+          <span style="display:inline-flex;align-items:center;background:#f8fafc;color:#64748b;font-size:0.72rem;font-weight:600;padding:0.2rem 0.6rem;border-radius:5px;margin:2px;">{{ skill }}</span>
+          {% endfor %}
+        </div>
+        {% endif %}
+        <p style="font-size:0.83rem;color:#64748b;line-height:1.6;margin-bottom:0.5rem;">{{ job.description|truncatewords:16 }}</p>
+        <div class="jcard-footer">
+          <div>
+            {% if job.salary %}
+            <div style="font-weight:700;color:#10b981;font-size:0.9rem;"><i class="bi bi-currency-rupee"></i>{{ job.salary }}</div>
+            {% else %}
+            <div style="font-size:0.8rem;color:#94a3b8;">Salary not disclosed</div>
+            {% endif %}
+            <div style="font-size:0.72rem;color:#94a3b8;margin-top:2px;"><i class="bi bi-clock me-1"></i>{{ job.created_at|timesince }} ago</div>
+          </div>
+          <a href="{% url 'job_detail' job.pk %}" class="btn btn-primary btn-sm px-3" style="border-radius:8px;font-size:0.82rem;">Apply Now</a>
+        </div>
+      </div>
+      {% empty %}
+      <div style="grid-column:1/-1;text-align:center;padding:4rem 2rem;color:#94a3b8;">
+        <i class="bi bi-briefcase" style="font-size:2.5rem;display:block;margin-bottom:1rem;"></i>
+        <h5 style="color:#64748b;">No jobs posted yet</h5>
+        <a href="{% url 'post_job' %}" class="btn btn-primary mt-2 px-4">Post the First Job</a>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- ===== HOW IT WORKS ===== -->
+<section class="section-pad" style="background:#f8fafc;">
+  <div class="container">
+    <div class="text-center mb-5">
+      <div class="section-tag"><i class="bi bi-map"></i>Process</div>
+      <h2 class="section-title">How JobConnect Works</h2>
+      <p style="color:#64748b;font-size:0.95rem;margin-top:0.5rem;">Get hired in 3 simple steps</p>
+    </div>
+    <div class="row g-4">
+      <div class="col-md-4">
+        <div class="hiw-card" data-step="01">
+          <div class="hiw-icon" style="background:linear-gradient(135deg,#ede9fe,#ddd6fe);">
+            <i class="bi bi-person-plus-fill" style="color:#5b21b6;"></i>
+          </div>
+          <h5 style="font-weight:800;font-size:1rem;color:#0f172a;margin-bottom:0.5rem;">Create Your Profile</h5>
+          <p style="font-size:0.85rem;color:#64748b;line-height:1.7;margin:0;">Sign up in seconds. Build your profile with your skills, experience, and upload your resume to stand out.</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="hiw-card" data-step="02" style="margin-top:1.5rem;">
+          <div class="hiw-icon" style="background:linear-gradient(135deg,#e0f2fe,#bae6fd);">
+            <i class="bi bi-search" style="color:#0369a1;"></i>
+          </div>
+          <h5 style="font-weight:800;font-size:1rem;color:#0f172a;margin-bottom:0.5rem;">Discover Opportunities</h5>
+          <p style="font-size:0.85rem;color:#64748b;line-height:1.7;margin:0;">Search and filter thousands of jobs by role, location, salary, and job type. Save your favorites for later.</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="hiw-card" data-step="03">
+          <div class="hiw-icon" style="background:linear-gradient(135deg,#d1fae5,#a7f3d0);">
+            <i class="bi bi-send-fill" style="color:#065f46;"></i>
+          </div>
+          <h5 style="font-weight:800;font-size:1rem;color:#0f172a;margin-bottom:0.5rem;">Apply & Get Hired</h5>
+          <p style="font-size:0.85rem;color:#64748b;line-height:1.7;margin:0;">Submit your application with a tailored cover letter. Track your application status in real-time on your dashboard.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== TESTIMONIALS ===== -->
+<section class="section-pad" style="background:white;">
+  <div class="container">
+    <div class="text-center mb-5">
+      <div class="section-tag"><i class="bi bi-chat-quote"></i>Stories</div>
+      <h2 class="section-title">What Our Users Say</h2>
+    </div>
+    <div class="row g-4">
+      <div class="col-md-4">
+        <div class="testi-card">
+          <div class="testi-stars"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i></div>
+          <p style="font-size:0.88rem;color:#475569;line-height:1.75;margin-bottom:1rem;">"I found my dream job as a Senior Developer within 2 weeks of signing up. The search filters are incredible and the application process was seamless."</p>
+          <div class="d-flex align-items-center gap-3">
+            <div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#4f46e5,#06b6d4);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:0.9rem;">R</div>
+            <div><div style="font-weight:700;font-size:0.88rem;color:#0f172a;">Rahul Sharma</div><div style="font-size:0.75rem;color:#94a3b8;">Senior Developer, Google</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="testi-card" style="background:linear-gradient(135deg,#4f46e5,#06b6d4);border-color:transparent;">
+          <div class="testi-stars" style="color:#fde68a;"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i></div>
+          <p style="font-size:0.88rem;color:rgba(255,255,255,0.9);line-height:1.75;margin-bottom:1rem;">"As an employer, JobConnect saved us weeks of recruitment time. We hired 3 great engineers through this platform in just one month."</p>
+          <div class="d-flex align-items-center gap-3">
+            <div style="width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:0.9rem;">P</div>
+            <div><div style="font-weight:700;font-size:0.88rem;color:white;">Priya Mehta</div><div style="font-size:0.75rem;color:rgba(255,255,255,0.6);">HR Manager, TCS</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="testi-card">
+          <div class="testi-stars"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-half"></i></div>
+          <p style="font-size:0.88rem;color:#475569;line-height:1.75;margin-bottom:1rem;">"Got my first internship through JobConnect. The profile builder helped me showcase my skills properly. Highly recommended for freshers!"</p>
+          <div class="d-flex align-items-center gap-3">
+            <div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#f59e0b,#ef4444);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:0.9rem;">A</div>
+            <div><div style="font-weight:700;font-size:0.88rem;color:#0f172a;">Amit Kumar</div><div style="font-size:0.75rem;color:#94a3b8;">Software Intern, Flipkart</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== CTA ===== -->
+<section class="cta-section">
+  <div class="container position-relative" style="z-index:1;">
+    <div class="row align-items-center">
+      <div class="col-lg-7 text-center text-lg-start">
+        <div class="section-tag" style="background:rgba(99,102,241,0.2);color:#a5b4fc;"><i class="bi bi-rocket-takeoff-fill"></i>Get Started</div>
+        <h2 style="color:white;font-weight:900;font-size:2.5rem;letter-spacing:-1px;margin-bottom:1rem;">Ready to Land Your<br>Dream Job?</h2>
+        <p style="color:#94a3b8;font-size:1rem;max-width:460px;">Join over 50,000 professionals who found their perfect career match on JobConnect. It's free to sign up.</p>
+        <div class="d-flex gap-3 mt-4 flex-wrap">
+          <a href="{% url 'register' %}" class="btn btn-primary px-5 py-3" style="border-radius:12px;font-weight:700;font-size:1rem;">
+            <i class="bi bi-person-plus-fill me-2"></i>Create Free Account
+          </a>
+          <a href="{% url 'job_list' %}" style="background:rgba(255,255,255,0.1);color:white;font-weight:600;padding:0.75rem 2rem;border-radius:12px;text-decoration:none;border:1.5px solid rgba(255,255,255,0.2);font-size:0.95rem;display:inline-flex;align-items:center;gap:8px;transition:all 0.2s;">
+            <i class="bi bi-search"></i>Browse Jobs
+          </a>
+        </div>
+      </div>
+      <div class="col-lg-5 d-none d-lg-flex justify-content-end">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;max-width:320px;">
+          <div style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:1.25rem;text-align:center;">
+            <div style="font-size:1.8rem;font-weight:900;color:white;">50K+</div>
+            <div style="font-size:0.75rem;color:#94a3b8;margin-top:3px;">Job Seekers</div>
+          </div>
+          <div style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:1.25rem;text-align:center;margin-top:1.5rem;">
+            <div style="font-size:1.8rem;font-weight:900;color:white;">2K+</div>
+            <div style="font-size:0.75rem;color:#94a3b8;margin-top:3px;">Companies</div>
+          </div>
+          <div style="background:rgba(99,102,241,0.2);border:1px solid rgba(99,102,241,0.3);border-radius:16px;padding:1.25rem;text-align:center;margin-top:-0.5rem;">
+            <div style="font-size:1.8rem;font-weight:900;background:linear-gradient(135deg,#818cf8,#67e8f9);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">98%</div>
+            <div style="font-size:0.75rem;color:#94a3b8;margin-top:3px;">Success Rate</div>
+          </div>
+          <div style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:1.25rem;text-align:center;">
+            <div style="font-size:1.8rem;font-weight:900;color:white;">{{ total_jobs }}+</div>
+            <div style="font-size:0.75rem;color:#94a3b8;margin-top:3px;">Live Jobs</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+const heroQ = document.getElementById('heroQ');
+const heroLoc = document.getElementById('heroLoc');
+const suggDrop = document.getElementById('suggDrop');
+const locDrop = document.getElementById('locDrop');
+const suggContent = document.getElementById('suggContent');
+let qTimer, lTimer;
+
+heroQ.addEventListener('input', function() {
+  clearTimeout(qTimer);
+  const v = this.value.trim();
+  if (v.length < 2) { suggDrop.classList.remove('show'); return; }
+  qTimer = setTimeout(() => {
+    fetch(`/api/search-suggestions/?q=${encodeURIComponent(v)}`)
+      .then(r => r.json()).then(d => renderSugg(d.suggestions, v));
+  }, 250);
+});
+
+heroQ.addEventListener('focus', function() {
+  if (this.value.trim().length >= 2) heroQ.dispatchEvent(new Event('input'));
+});
+
+function renderSugg(suggestions, q) {
+  if (!suggestions.length) { suggDrop.classList.remove('show'); return; }
+  const groups = { title: [], company: [], location: [] };
+  suggestions.forEach(s => groups[s.type]?.push(s));
+  let html = '';
+  const titles = { title: ['Job Titles','briefcase','#ede9fe','#5b21b6'], company: ['Companies','building','#e0f2fe','#075985'], location: ['Locations','geo-alt','#d1fae5','#065f46'] };
+  for (const [type, items] of Object.entries(groups)) {
+    if (!items.length) continue;
+    html += `<div class="sugg-section-title">${titles[type][0]}</div>`;
+    items.forEach(s => {
+      const hl = s.value.replace(new RegExp(q,'gi'), m => `<strong style="color:#4f46e5;">${m}</strong>`);
+      html += `<div class="sugg-item" onclick="pickSugg('${s.value}','${type}')">
+        <div class="sugg-icon" style="background:${titles[type][2]};color:${titles[type][3]};"><i class="bi bi-${titles[type][1]}"></i></div>
+        <div><div class="sugg-item-text">${hl}</div><div class="sugg-item-type">${titles[type][0].slice(0,-1)}</div></div>
+      </div>`;
+    });
+  }
+  suggContent.innerHTML = html;
+  suggDrop.classList.add('show');
+}
+
+function pickSugg(val, type) {
+  if (type === 'location') heroLoc.value = val;
+  else heroQ.value = val;
+  suggDrop.classList.remove('show');
+  document.getElementById('heroForm').submit();
+}
+
+heroLoc.addEventListener('input', function() {
+  clearTimeout(lTimer);
+  const v = this.value.trim();
+  if (v.length < 2) { locDrop.classList.remove('show'); return; }
+  lTimer = setTimeout(() => {
+    fetch(`/api/location-suggestions/?q=${encodeURIComponent(v)}`)
+      .then(r => r.json()).then(d => {
+        if (!d.locations.length) { locDrop.classList.remove('show'); return; }
+        let html = '';
+        d.locations.forEach(l => {
+          const hl = l.replace(new RegExp(v,'gi'), m => `<strong style="color:#4f46e5;">${m}</strong>`);
+          html += `<div class="loc-item" onclick="pickLoc('${l}')"><i class="bi bi-geo-alt-fill" style="color:#4f46e5;"></i>${hl}</div>`;
+        });
+        locDrop.innerHTML = html;
+        locDrop.classList.add('show');
+      });
+  }, 250);
+});
+
+function pickLoc(v) { heroLoc.value = v; locDrop.classList.remove('show'); }
+function qs(q) { heroQ.value = q; document.getElementById('heroForm').submit(); }
+
+document.addEventListener('click', e => {
+  if (!document.getElementById('searchBox').contains(e.target)) {
+    suggDrop.classList.remove('show');
+    locDrop.classList.remove('show');
+  }
+});
+</script>
+{% endblock %}

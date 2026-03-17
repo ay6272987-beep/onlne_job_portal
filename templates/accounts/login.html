@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% block title %}Sign In – JobConnect{% endblock %}
+{% block extra_head %}
+<style>
+  .auth-wrap{min-height:calc(100vh - 64px);display:flex;align-items:center;justify-content:center;padding:2rem 1rem;}
+  .auth-card{width:100%;max-width:420px;background:#fff;border-radius:18px;border:1px solid #e2e8f0;padding:2.25rem;}
+  .auth-logo{text-align:center;margin-bottom:1.75rem;}
+  .auth-logo .ico{width:48px;height:48px;border-radius:13px;background:linear-gradient(135deg,#4f46e5,#818cf8);display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.25rem;margin:0 auto .75rem;}
+  .auth-logo h1{font-size:1.35rem;font-weight:800;margin:0;color:#0f172a;}
+  .auth-logo p{font-size:.875rem;color:#64748b;margin:.3rem 0 0;}
+  .fg{display:flex;flex-direction:column;gap:.35rem;margin-bottom:.875rem;}
+  .fg label{font-size:.8rem;font-weight:700;color:#0f172a;}
+  .fg input{padding:.6rem .9rem;border:1.5px solid #e2e8f0;border-radius:9px;font-size:.875rem;font-family:inherit;color:#0f172a;background:#fff;outline:none;transition:border-color .15s;width:100%;}
+  .fg input:focus{border-color:#4f46e5;}
+  .btn-auth{width:100%;padding:.7rem;background:#4f46e5;color:#fff;border:none;border-radius:10px;font-size:.925rem;font-weight:800;cursor:pointer;transition:all .15s;margin-top:.5rem;}
+  .btn-auth:hover{background:#3730a3;transform:translateY(-1px);}
+  .auth-err{background:#fef2f2;color:#991b1b;border-radius:9px;padding:.65rem .9rem;font-size:.845rem;font-weight:600;margin-bottom:1rem;display:flex;align-items:center;gap:.5rem;}
+  .auth-footer{text-align:center;margin-top:1.25rem;font-size:.855rem;color:#64748b;}
+  .auth-footer a{color:#4f46e5;font-weight:700;text-decoration:none;}
+</style>
+{% endblock %}
+{% block content %}
+<div class="auth-wrap">
+  <div class="auth-card">
+    <div class="auth-logo">
+      <div class="ico"><i class="bi bi-box-arrow-in-right"></i></div>
+      <h1>Welcome back</h1>
+      <p>Sign in to your JobConnect account</p>
+    </div>
+
+    <form method="post">
+      {% csrf_token %}
+      {% if form.non_field_errors %}
+      <div class="auth-err"><i class="bi bi-exclamation-circle-fill"></i>{{ form.non_field_errors.0 }}</div>
+      {% endif %}
+      <div class="fg"><label>Username</label>{{ form.username }}</div>
+      <div class="fg"><label>Password</label>{{ form.password }}</div>
+      <button type="submit" class="btn-auth"><i class="bi bi-box-arrow-in-right me-2"></i>Sign In</button>
+    </form>
+
+    <div class="auth-footer">Don't have an account? <a href="{% url 'register' %}">Sign up for free</a></div>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+document.querySelectorAll('.fg input').forEach(el => el.style.boxSizing = 'border-box');
+</script>
+{% endblock %}

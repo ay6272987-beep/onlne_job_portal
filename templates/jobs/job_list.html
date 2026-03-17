@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+{% block title %}Browse Jobs – JobConnect{% endblock %}
+{% block extra_head %}
+<style>
+  .jl-wrap{max-width:1100px;margin:2rem auto;padding:0 1.25rem;}
+  .search-bar{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:1.25rem 1.5rem;margin-bottom:1.5rem;}
+  .search-bar .row{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:.75rem;align-items:end;}
+  .fg{display:flex;flex-direction:column;gap:.3rem;}
+  .fg label{font-size:.75rem;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.5px;}
+  .fg input,.fg select{padding:.58rem .9rem;border:1.5px solid #e2e8f0;border-radius:9px;font-size:.875rem;font-family:inherit;color:#0f172a;background:#fff;outline:none;transition:border-color .15s;width:100%;}
+  .fg input:focus,.fg select:focus{border-color:#4f46e5;}
+  .btn-search{padding:.6rem 1.4rem;background:#4f46e5;color:#fff;border:none;border-radius:9px;font-size:.875rem;font-weight:700;cursor:pointer;white-space:nowrap;transition:all .15s;}
+  .btn-search:hover{background:#3730a3;}
+  .jl-meta{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;}
+  .jl-meta .count{font-size:.9rem;font-weight:700;color:#64748b;}
+  .btn-clear{display:inline-flex;align-items:center;gap:.35rem;padding:.35rem .8rem;border:1.5px solid #e2e8f0;color:#64748b;border-radius:8px;font-size:.8rem;font-weight:700;text-decoration:none;transition:all .15s;}
+  .btn-clear:hover{border-color:#ef4444;color:#ef4444;}
+  .jobs-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:1rem;}
+  .jcard{background:#fff;border:1px solid #e2e8f0;border-radius:13px;padding:1.25rem 1.4rem;transition:box-shadow .18s,transform .18s;display:flex;flex-direction:column;}
+  .jcard:hover{box-shadow:0 6px 24px rgba(79,70,229,.1);transform:translateY(-2px);}
+  .jcard-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.6rem;}
+  .jcard-title{font-size:.97rem;font-weight:800;color:#0f172a;margin:0;line-height:1.3;}
+  .type-badge{font-size:.7rem;font-weight:700;padding:.22rem .62rem;border-radius:20px;background:rgba(79,70,229,.1);color:#4f46e5;white-space:nowrap;flex-shrink:0;margin-left:.5rem;}
+  .jcard-meta{font-size:.8rem;color:#64748b;display:flex;flex-direction:column;gap:.3rem;margin-bottom:.75rem;}
+  .jcard-meta span{display:flex;align-items:center;gap:.35rem;}
+  .salary{color:#10b981;font-weight:700;}
+  .jcard-desc{font-size:.83rem;color:#64748b;line-height:1.65;flex:1;margin-bottom:.9rem;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+  .jcard-foot{display:flex;justify-content:space-between;align-items:center;padding-top:.75rem;border-top:1px solid #f1f5f9;}
+  .jcard-date{font-size:.75rem;color:#94a3b8;}
+  .btn-apply{display:inline-flex;align-items:center;gap:.3rem;padding:.4rem .95rem;background:#4f46e5;color:#fff;border-radius:8px;font-size:.8rem;font-weight:700;text-decoration:none;transition:all .15s;}
+  .btn-apply:hover{background:#3730a3;color:#fff;}
+  .empty-state{text-align:center;padding:5rem 1rem;grid-column:1/-1;}
+  .empty-state i{font-size:2.5rem;color:#cbd5e1;display:block;margin-bottom:1rem;}
+  .empty-state h3{font-size:1.1rem;font-weight:700;color:#64748b;margin-bottom:.5rem;}
+  .empty-state p{font-size:.875rem;color:#94a3b8;}
+  @media(max-width:768px){.search-bar .row{grid-template-columns:1fr 1fr;}.search-bar .row .fg:first-child{grid-column:1/-1;}.btn-search{grid-column:1/-1;}}
+  @media(max-width:480px){.search-bar .row{grid-template-columns:1fr;}}
+</style>
+{% endblock %}
+{% block content %}
+<div class="jl-wrap">
+  <div class="search-bar">
+    <form method="get" action="{% url 'job_list' %}">
+      <div class="row">
+        <div class="fg"><label>Job Title / Company</label><input type="text" name="q" value="{{ query }}" placeholder="e.g. Python Developer, Google..."></div>
+        <div class="fg"><label>Location</label><input type="text" name="location" value="{{ location }}" placeholder="e.g. Bangalore, Remote..."></div>
+        <div class="fg"><label>Job Type</label>
+          <select name="job_type">
+            <option value="">All Types</option>
+            <option value="full-time"   {% if job_type == 'full-time' %}selected{% endif %}>Full Time</option>
+            <option value="part-time"   {% if job_type == 'part-time' %}selected{% endif %}>Part Time</option>
+            <option value="remote"      {% if job_type == 'remote' %}selected{% endif %}>Remote</option>
+            <option value="internship"  {% if job_type == 'internship' %}selected{% endif %}>Internship</option>
+            <option value="contract"    {% if job_type == 'contract' %}selected{% endif %}>Contract</option>
+          </select>
+        </div>
+        <div class="fg"><button type="submit" class="btn-search"><i class="bi bi-search me-1"></i>Search</button></div>
+      </div>
+    </form>
+  </div>
+
+  <div class="jl-meta">
+    <span class="count"><strong>{{ count }}</strong> job{{ count|pluralize }} found</span>
+    {% if query or location or job_type %}
+    <a href="{% url 'job_list' %}" class="btn-clear"><i class="bi bi-x-circle"></i>Clear Filters</a>
+    {% endif %}
+  </div>
+
+  <div class="jobs-grid">
+    {% for job in jobs %}
+    <div class="jcard">
+      <div class="jcard-top">
+        <h3 class="jcard-title">{{ job.title }}</h3>
+        <span class="type-badge">{{ job.get_job_type_display }}</span>
+      </div>
+      <div class="jcard-meta">
+        <span><i class="bi bi-building"></i><strong>{{ job.company }}</strong></span>
+        <span><i class="bi bi-geo-alt"></i>{{ job.location }}</span>
+        {% if job.salary %}<span class="salary"><i class="bi bi-currency-rupee"></i>{{ job.salary }}</span>{% endif %}
+      </div>
+      <p class="jcard-desc">{{ job.description }}</p>
+      <div class="jcard-foot">
+        <span class="jcard-date"><i class="bi bi-clock me-1"></i>{{ job.created_at|timesince }} ago</span>
+        <a href="{% url 'job_detail' job.pk %}" class="btn-apply">Apply Now <i class="bi bi-arrow-right"></i></a>
+      </div>
+    </div>
+    {% empty %}
+    <div class="empty-state">
+      <i class="bi bi-search"></i>
+      <h3>No jobs found</h3>
+      <p>Try adjusting your search or <a href="{% url 'job_list' %}" style="color:#4f46e5;">clear all filters</a>.</p>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

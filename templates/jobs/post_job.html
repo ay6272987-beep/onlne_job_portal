@@ -1,0 +1,153 @@
+{% extends 'base.html' %}
+{% block title %}{% if editing %}Edit Job{% else %}Post a Job{% endif %} — JobConnect{% endblock %}
+{% block content %}
+<style>
+  .post-page { background: #f8fafc; min-height: calc(100vh - 72px); padding: 2.5rem 0; }
+  .post-card { background: white; border-radius: 20px; border: 1px solid #f1f5f9; overflow: hidden; }
+  .post-header { background: linear-gradient(135deg, #4f46e5, #06b6d4); padding: 2rem; }
+  .post-body { padding: 2rem; }
+  .form-section { margin-bottom: 2rem; }
+  .form-section-title { font-weight: 700; font-size: 0.9rem; color: #0f172a; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid #f1f5f9; display: flex; align-items: center; gap: 8px; }
+  .form-section-title i { color: #4f46e5; }
+  .logo-preview { width: 80px; height: 80px; border-radius: 14px; background: #f8fafc; border: 2px dashed #e2e8f0; display: flex; align-items: center; justify-content: center; overflow: hidden; cursor: pointer; transition: all 0.2s; }
+  .logo-preview:hover { border-color: #4f46e5; background: #ede9fe; }
+  .logo-preview img { width: 100%; height: 100%; object-fit: cover; }
+</style>
+
+<div class="post-page">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-8">
+        <div class="d-flex align-items-center gap-3 mb-4">
+          <a href="{% url 'dashboard' %}" style="color:#64748b;text-decoration:none;font-size:0.88rem;">
+            <i class="bi bi-arrow-left me-1"></i>Back to Dashboard
+          </a>
+        </div>
+        <div class="post-card">
+          <div class="post-header">
+            <h3 style="color:white;font-weight:800;margin:0;">
+              <i class="bi bi-{% if editing %}pencil{% else %}plus-circle{% endif %} me-2"></i>
+              {% if editing %}Edit Job{% else %}Post a New Job{% endif %}
+            </h3>
+            <p style="color:rgba(255,255,255,0.7);margin:0.3rem 0 0;font-size:0.88rem;">Fill in the details below to {% if editing %}update your{% else %}publish a{% endif %} job listing</p>
+          </div>
+
+          <div class="post-body">
+            <form method="post" enctype="multipart/form-data">
+              {% csrf_token %}
+
+              <!-- Basic Info -->
+              <div class="form-section">
+                <div class="form-section-title"><i class="bi bi-briefcase"></i>Job Details</div>
+                <div class="row g-3">
+                  <div class="col-md-8">
+                    <label class="form-label">Job Title <span style="color:#ef4444;">*</span></label>
+                    {{ form.title }}
+                    {% if form.title.errors %}<div class="text-danger" style="font-size:0.8rem;">{{ form.title.errors.0 }}</div>{% endif %}
+                  </div>
+                  <div class="col-md-4">
+                    <label class="form-label">Job Type <span style="color:#ef4444;">*</span></label>
+                    {{ form.job_type }}
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label">Company Name <span style="color:#ef4444;">*</span></label>
+                    {{ form.company }}
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label">Location <span style="color:#ef4444;">*</span></label>
+                    {{ form.location }}
+                  </div>
+                  <div class="col-md-4">
+                    <label class="form-label">Salary <span style="color:#94a3b8;font-weight:400;">(optional)</span></label>
+                    {{ form.salary }}
+                  </div>
+                  <div class="col-md-4">
+                    <label class="form-label">Experience Required</label>
+                    {{ form.experience }}
+                  </div>
+                  <div class="col-md-4">
+                    <label class="form-label">Application Deadline</label>
+                    {{ form.deadline }}
+                  </div>
+                </div>
+              </div>
+
+              <!-- Company Logo -->
+              <div class="form-section">
+                <div class="form-section-title"><i class="bi bi-image"></i>Company Logo</div>
+                <div class="d-flex align-items-center gap-3">
+                  <label for="id_company_logo" style="cursor:pointer;">
+                    <div class="logo-preview" id="logoPreview">
+                      {% if form.instance.company_logo %}
+                        <img src="{{ form.instance.company_logo.url }}" id="logoImg" alt="Logo">
+                      {% else %}
+                        <i class="bi bi-building" id="logoPlaceholder" style="font-size:1.5rem;color:#94a3b8;"></i>
+                      {% endif %}
+                    </div>
+                  </label>
+                  <div>
+                    <div style="font-weight:600;font-size:0.88rem;color:#0f172a;">Company Logo</div>
+                    <div style="font-size:0.78rem;color:#94a3b8;margin-top:2px;">Click to upload (PNG, JPG)</div>
+                    {{ form.company_logo }}
+                  </div>
+                </div>
+              </div>
+
+              <!-- Description -->
+              <div class="form-section">
+                <div class="form-section-title"><i class="bi bi-file-text"></i>Job Description</div>
+                <div class="row g-3">
+                  <div class="col-12">
+                    <label class="form-label">Description <span style="color:#ef4444;">*</span></label>
+                    {{ form.description }}
+                  </div>
+                  <div class="col-12">
+                    <label class="form-label">Requirements <span style="color:#ef4444;">*</span></label>
+                    {{ form.requirements }}
+                  </div>
+                  <div class="col-12">
+                    <label class="form-label">Skills Required <span style="color:#94a3b8;font-weight:400;">(comma separated)</span></label>
+                    {{ form.skills_required }}
+                  </div>
+                </div>
+              </div>
+
+              <div class="d-flex gap-3 justify-content-end">
+                <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary px-4" style="border-radius:10px;">Cancel</a>
+                <button type="submit" class="btn btn-primary px-5" style="border-radius:10px;font-weight:700;font-size:0.95rem;">
+                  <i class="bi bi-{% if editing %}check-lg{% else %}cloud-upload{% endif %} me-2"></i>
+                  {% if editing %}Update Job{% else %}Publish Job{% endif %}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+  document.querySelectorAll('input:not([type=file]):not([type=date]), textarea').forEach(el => el.classList.add('form-control'));
+  document.querySelectorAll('select').forEach(el => el.classList.add('form-select'));
+  document.querySelector('input[type=date]')?.classList.add('form-control');
+
+  // Logo preview
+  const logoInput = document.getElementById('id_company_logo');
+  if (logoInput) {
+    logoInput.style.display = 'none';
+    logoInput.addEventListener('change', function() {
+      const file = this.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = e => {
+          const preview = document.getElementById('logoPreview');
+          preview.innerHTML = `<img src="${e.target.result}" style="width:100%;height:100%;object-fit:cover;">`;
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+  }
+</script>
+{% endblock %}
